@@ -1,11 +1,14 @@
 #!/usr/local/bin/python3
 
+import sys
+sys.path.append('widgets')
+
 from pythonosc import dispatcher, osc_server
 import threading
 
 from painterwidgets import LevelMeter
 from PyQt5.QtWidgets import QApplication
-import sys
+
 
 
 def quit(addr):
