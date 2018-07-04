@@ -60,12 +60,18 @@ class BusState:
 
 class CueList:
     def __init__(self, path=None):
-        self.cue_pointer = None
         self.bus_states = [BusState(), BusState(), BusState(), BusState(), BusState()]
-        self.current_routing = AudioRouting()
+        #self.current_routing = AudioRouting()
         self.fire_cue_on_update = False
         if (path is not None):
             self.load_path(path)
+        else:
+            self.cue_pointer = 0
+            self.cues = [Cue('TEST',
+                [BusCue(1, 50, 1, 1, None, 0), BusCue(), BusCue(), BusCue(), BusCue()],
+                'When they sit at the table',
+                None
+            )]
 
     def load_path(self, path):
         self.path = path

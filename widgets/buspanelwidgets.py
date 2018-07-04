@@ -219,7 +219,7 @@ class SoundPatchWidget(QWidget):
 
         vbox.addLayout(grid)
 
-        vbox.addSpacing(15)
+        vbox.addSpacing(40)
 
         title = QLabel('Current routing')
         title.setFont(self.title_font)
