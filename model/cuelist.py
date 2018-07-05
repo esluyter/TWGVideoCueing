@@ -26,7 +26,7 @@ class Publisher:
         self.subscribers.discard(who)
     def changed(self, what):
         self.subscribers.update(what)
-        
+
 
 class Media:
     def __init__(self, name, duration):
@@ -112,6 +112,7 @@ class CueList(Publisher):
                 next(reader) #skip header row
                 for row in reader:
                     self.cues.append(Cue.from_csv_row(row))
+        self.changed('cues')
 
     def write_cues(self):
         pass
@@ -126,6 +127,7 @@ class CueList(Publisher):
                     name = m[2]
                     duration = float(m[3])
                     self.media_info[index] = Media(name, duration)
+        self.changed('media_info')
 
     def update_media_info(self, data):
         #TODO: update media info and write it to disk
@@ -137,47 +139,60 @@ class CueList(Publisher):
 
     def set_bus_pos(self, index, pos):
         self.bus_states[index].pos = pos
+        self.changed('bus' + index + 'pos')
 
     def set_bus_media(self, index, media_index):
         self.bus_states[index].media_index = media_index
+        self.changed('bus' + index + 'media')
 
     def set_bus_active(self, index, active):
         self.bus_states[index].active = active
+        self.changed('bus' + index + 'active')
 
     def goto_cue(self, index):
         self.cue_pointer = index % len(self.cues)
+        self.changed('cue_pointer')
 
     def current_cue(self):
         return self.cues[self.cue_pointer]
 
     def increment_cue(self):
         self.cue_pointer = (self.cue_pointer + 1) % len(self.cues)
+        self.changed('cue_pointer')
 
     def decrement_cue(self):
         self.cue_pointer = (self.cue_pointer - 1) % len(self.cues)
+        self.changed('cue_pointer')
 
     def replace_current_cue(self, cue):
         self.cues[self.cue_pointer] = cue
+        self.changed('cues')
 
     def add_cue_after_current(self, cue):
         self.cue_pointer += 1
         self.cues.insert(self.cue_pointer, cue)
+        self.changed('cues')
 
     def add_cue_before_current(self, cue):
         self.cues.insert(self.cue_pointer, cue)
+        self.changed('cues')
 
     def add_empty_cue_after_current(self, name):
         self.cue_pointer += 1
         self.cues.insert(self.cue_pointer, Cue(name))
+        self.changed('cues')
 
     def add_empty_cue_before_current(self, name):
         self.cues.insert(self.cue_pointer, Cue(name))
+        self.changed('cues')
 
     def rename_current_cue(self, name):
         self.current_cue().name = name
+        self.changed('cues')
 
     def delete_current_cue(self):
         del self.cues[self.cue_pointer]
+        self.changed('cues')
 
     def fire_current_cue(self, name):
         pass
