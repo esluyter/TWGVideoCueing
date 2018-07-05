@@ -1,77 +1,100 @@
 """
 CueList model classes
 
+- Media
+- BusState
+- BusCue
+- AudioRouting
+- Cue
+- CueList
+
 Author: Eric Sluyter
 Last edited: July 2018
 """
 
-class MediaInfo:
+import os
+import csv
+import re
+
+# this is a superclass that implements the Observer pattern
+class Publisher:
+    def __init__(self):
+        self.subscribers = set()
+    def register(self, who):
+        self.subscribers.add(who)
+    def unregister(self, who):
+        self.subscribers.discard(who)
+    def changed(self, what):
+        self.subscribers.update(what)
+        
+
+class Media:
     def __init__(self, name, duration):
         self.name = name
         self.duration = duration
 
-class BusCue:
-    def __init__(self, media_index=None, pos=None, speed=None, ramp_time=None,
-            zoom=None, db=None):
-        self.media_index = None if media_index == 'n' else media_index
-        self.pos = None if pos == 'n' else pos
-        self.speed = None if speed == 'n' else speed
-        self.ramp_time = None if ramp_time == 'n' else ramp_time
-        self.zoom = None if zoom == 'n' else zoom
-        self.db = None if db == 'n' else db
-
-class AudioRouting:
-    def __init__(self):
-        #TODO: fill with empty matrix state
-        pass
-
-    def __init__(self, matrix_state):
-        self.matrix_state = matrix_state
-
-class Cue:
-    def __init__(self, csv_row):
-        self.name = csv_row.pop(0)
-        self.buses = [
-            BusCue(csv_row.pop(0), csv_row.pop(0), csv_row.pop(0), csv_row.pop(0),
-                csv_row.pop(0), csv_row.pop(0)),
-            BusCue(csv_row.pop(0), csv_row.pop(0), csv_row.pop(0), csv_row.pop(0),
-                csv_row.pop(0), csv_row.pop(0)),
-            BusCue(csv_row.pop(0), csv_row.pop(0), csv_row.pop(0), csv_row.pop(0),
-                csv_row.pop(0), csv_row.pop(0)),
-            BusCue(csv_row.pop(0), csv_row.pop(0), csv_row.pop(0), csv_row.pop(0),
-                csv_row.pop(0), csv_row.pop(0)),
-            BusCue(csv_row.pop(0), csv_row.pop(0), csv_row.pop(0), csv_row.pop(0),
-                csv_row.pop(0), csv_row.pop(0))
-        ]
-        self.notes = csv_row.pop(0)
-        self.audio_routing = AudioRouting(csv_row.pop(0))
-
-    def __init__(self, name, buses, notes, audio_routing):
-        self.name = name
-        self.buses = buses
-        self.notes = notes
-        self.audio_routing = audio_routing
+    def __repr__(self):
+        return "Media('%s', %s)" % (self.name, self.duration)
 
 class BusState:
-    def __init__(self):
-        self.media_index = 0
-        self.pos = 0.0
-        self.active = False
+    def __init__(self, media_index=0, pos=0.0, active=False):
+        self.media_index = media_index
+        self.pos = pos
+        self.active = active
 
-class CueList:
-    def __init__(self, path=None):
-        self.bus_states = [BusState(), BusState(), BusState(), BusState(), BusState()]
-        #self.current_routing = AudioRouting()
-        self.fire_cue_on_update = False
-        if (path is not None):
-            self.load_path(path)
-        else:
-            self.cue_pointer = 0
-            self.cues = [Cue('TEST',
-                [BusCue(1, 50, 1, 1, None, 0), BusCue(), BusCue(), BusCue(), BusCue()],
-                'When they sit at the table',
-                None
-            )]
+    def __repr__(self):
+        return "BusState(%s, %s, %s)" % (self.media_index, self.pos, self.active)
+
+class BusCue:
+    def __init__(self, media_index='n', pos='n', speed='n', ramp_time='n',
+            zoom='n', db='n'):
+        self.media_index = None if media_index == 'n' else int(media_index)
+        self.pos = None if pos == 'n' else float(pos)
+        self.speed = None if speed == 'n' else float(speed)
+        self.ramp_time = None if ramp_time == 'n' else float(ramp_time)
+        self.zoom = None if zoom == 'n' else float(zoom)
+        self.db = None if db == 'n' else float(db)
+
+    def __repr__(self):
+        return "BusCue(%s, %s, %s, %s, %s, %s)" % (self.media_index, self.pos,
+            self.speed, self.ramp_time, self.zoom, self.db)
+
+class AudioRouting:
+    def __init__(self, matrix_state=None):
+        self.matrix_state = matrix_state
+
+    def __repr__(self):
+        return "AudioRouting(%s)" % self.matrix_state
+
+class Cue:
+    def __init__(self, name='', buses=None, notes='', audio_routing=None):
+        self.name = name
+        self.buses = [BusCue() for i in range(5)] if buses is None else buses
+        self.notes = notes
+        self.audio_routing = AudioRouting() if audio_routing is None else audio_routing
+
+    @classmethod
+    def from_csv_row(cls, csv_row):
+        name = csv_row.pop(0)
+        buses = [BusCue(*[csv_row.pop(0) for i in range(6)]) for j in range(5)]
+        notes = csv_row.pop(0)
+        audio_routing = AudioRouting(csv_row.pop(0))
+        return cls(name, buses, notes, audio_routing)
+
+    def __repr__(self):
+        return "Cue('%s', %s, '%s', %s)" % (self.name, self.buses, self.notes,
+            self.audio_routing)
+
+class CueList(Publisher):
+    def __init__(self, path=None, fire_on_update=False):
+        super().__init__()
+        self.bus_states = [BusState() for i in range(5)]
+        self.current_routing = AudioRouting()
+        self.fire_on_update = fire_on_update
+        self.load_path(path)
+
+    def __repr__(self):
+        return "<CueList path:'%s', fire_on_update:%s, media_info:%s, bus_states:%s, current_routing:%s, cues:%s>" % (self.path, self.fire_on_update, self.media_info, self.bus_states, self.current_routing, self.cues)
 
     def load_path(self, path):
         self.path = path
@@ -80,12 +103,29 @@ class CueList:
         self.load_media_info()
 
     def load_cues(self):
-        #TODO: load cues
+        if self.path is None:
+            self.cues = [Cue('BLANK', [BusCue() for i in range(5)], '', AudioRouting())]
+        else:
+            self.cues = []
+            with open(os.path.join(self.path, 'cues.csv'), 'r') as csv_file:
+                reader = csv.reader(csv_file)
+                next(reader) #skip header row
+                for row in reader:
+                    self.cues.append(Cue.from_csv_row(row))
+
+    def write_cues(self):
         pass
 
     def load_media_info(self):
-        #TODO: load media info
-        pass
+        self.media_info = {0: Media('BLANK', 0)}
+        if self.path is not None:
+            with open(os.path.join(self.path, 'mediainfo.txt'), 'r') as file:
+                for line in file:
+                    m = re.split(r'(\d+), "([^"]+)" ([\d\.]+);', line)
+                    index = int(m[1])
+                    name = m[2]
+                    duration = float(m[3])
+                    self.media_info[index] = Media(name, duration)
 
     def update_media_info(self, data):
         #TODO: update media info and write it to disk
@@ -105,38 +145,39 @@ class CueList:
         self.bus_states[index].active = active
 
     def goto_cue(self, index):
-        self.cue_pointer = index
+        self.cue_pointer = index % len(self.cues)
 
     def current_cue(self):
-        #TODO: implement, return copy of cue
-        pass
+        return self.cues[self.cue_pointer]
 
     def increment_cue(self):
-        pass
+        self.cue_pointer = (self.cue_pointer + 1) % len(self.cues)
 
     def decrement_cue(self):
-        pass
+        self.cue_pointer = (self.cue_pointer - 1) % len(self.cues)
 
     def replace_current_cue(self, cue):
-        pass
+        self.cues[self.cue_pointer] = cue
 
-    def add_cue_after_current(self, cue, name):
-        pass
+    def add_cue_after_current(self, cue):
+        self.cue_pointer += 1
+        self.cues.insert(self.cue_pointer, cue)
 
-    def add_cue_before_current(self, cue, name):
-        pass
+    def add_cue_before_current(self, cue):
+        self.cues.insert(self.cue_pointer, cue)
 
     def add_empty_cue_after_current(self, name):
-        pass
+        self.cue_pointer += 1
+        self.cues.insert(self.cue_pointer, Cue(name))
 
     def add_empty_cue_before_current(self, name):
-        pass
+        self.cues.insert(self.cue_pointer, Cue(name))
 
     def rename_current_cue(self, name):
-        pass
+        self.current_cue().name = name
 
-    def delete_current_cue(self, name):
-        pass
+    def delete_current_cue(self):
+        del self.cues[self.cue_pointer]
 
     def fire_current_cue(self, name):
         pass

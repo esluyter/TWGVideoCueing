@@ -8,8 +8,8 @@ Author: Eric Sluyter
 Last edited: July 2018
 """
 
-from littlewidgets import QHLine, QNumberBox
-from painterwidgets import LevelMeter
+from widgets.littlewidgets import QHLine, QNumberBox
+from widgets.painterwidgets import LevelMeter
 from PyQt5.QtWidgets import (QWidget, QPushButton,
     QLabel, QSlider, QHBoxLayout, QVBoxLayout, QCheckBox,
     QSizePolicy, QGridLayout, QComboBox)

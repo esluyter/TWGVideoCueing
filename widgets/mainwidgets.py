@@ -8,7 +8,7 @@ Author: Eric Sluyter
 Last edited: July 2018
 """
 
-from buspanelwidgets import BusWidget, SoundPatchWidget
+from widgets.buspanelwidgets import BusWidget, SoundPatchWidget
 from PyQt5.QtWidgets import (QWidget, QPushButton, QMainWindow, QToolTip, QAction,
     QTextEdit, QLabel, QHBoxLayout, QVBoxLayout, QDesktopWidget, QListView)
 from PyQt5.QtGui import QFont, QIcon, QStandardItemModel, QStandardItem

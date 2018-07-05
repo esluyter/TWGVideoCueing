@@ -9,12 +9,9 @@ Last edited: July 2018
 
 import sys, os
 
-sys.path.append('widgets')
-sys.path.append('model')
-
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QIcon
-from mainwidgets import MainWindow
+from widgets.mainwidgets import MainWindow
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
