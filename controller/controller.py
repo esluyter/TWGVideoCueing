@@ -12,7 +12,8 @@ class CueController:
         model.register(self)
         view.register(self)
         view.mainwidget.list.register(self)
-        self.set_media_info()
+        self.view_media_info()
+        self.view_rwff_speed()
         self.view_cues()
         self.view_current_cue()
 
@@ -25,8 +26,11 @@ class CueController:
         if what == 'cue_pointer' and etc != model.cue_pointer:
             model.goto_cue(etc)
 
-    def set_media_info(self):
+    def view_media_info(self):
         self.view.mainwidget.set_media_info(self.model.media_info)
+
+    def view_rwff_speed(self):
+        self.view.mainwidget.midpanel.set_rwff_speed(self.model.rwff_speed)
 
     def view_cues(self):
         self.view.mainwidget.list.set_cues([cue.name for cue in self.model.cues])

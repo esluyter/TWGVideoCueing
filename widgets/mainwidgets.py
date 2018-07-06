@@ -9,11 +9,12 @@ Last edited: July 2018
 """
 
 from widgets.buspanelwidgets import BusWidget, SoundPatchWidget
-from widgets.cuelistwidgets import CueListWidget
+from widgets.cuelistwidgets import CueListWidget, CueButtonsLayout, CueMidpanelLayout
 from PyQt5.QtWidgets import (QWidget, QPushButton, QMainWindow, QToolTip, QAction,
-    QTextEdit, QLabel, QHBoxLayout, QVBoxLayout, QDesktopWidget)
+    QTextEdit, QLabel, QHBoxLayout, QVBoxLayout, QDesktopWidget, QSizePolicy)
 from PyQt5.QtGui import QFont, QIcon
 from common.publisher import Publisher
+from widgets.fonts import UIFonts
 
 
 class MainWidget(QWidget):
@@ -31,51 +32,14 @@ class MainWidget(QWidget):
 
         topstuff = QHBoxLayout()
 
-        buttons = QVBoxLayout()
-        buttons.setSpacing(0)
-        buttons.addWidget(QPushButton('↑ Save as new cue before'))
-        buttons.addWidget(QPushButton('Update cue'))
-        buttons.addWidget(QPushButton('↓ Save as new cue after'))
-        buttons.addSpacing(15)
-        buttons.addWidget(QPushButton('+↑ Insert blank cue before'))
-        buttons.addWidget(QPushButton('+↓ Insert blank cue after'))
-        buttons.addSpacing(15)
-        buttons.addWidget(QPushButton('⌫ Delete cue'))
-        buttons.addWidget(QPushButton('✎ Rename cue'))
-        topstuff.addLayout(buttons)
+        self.buttons = CueButtonsLayout()
+        topstuff.addLayout(self.buttons)
 
-        midpanel = QVBoxLayout()
-        midpanel.setSpacing(0)
-        self.cue_name = QLabel('Cue Name')
-        self.cue_name.setFont(QFont('SansSerif', 40))
-        midpanel.addWidget(self.cue_name)
-        gobutton = QPushButton('GO')
-        gobutton.setFont(QFont('SansSerif', 50))
-        midpanel.addWidget(gobutton)
-        transport = QHBoxLayout()
-        transport.setSpacing(0)
-        rw = QPushButton('◀◀')
-        rw.setFont(QFont('SansSerif', 20))
-        rw.setFixedHeight(70)
-        pause = QPushButton('\u25ae\u25ae')
-        pause.setFont(QFont('SansSerif', 35))
-        pause.setFixedHeight(70)
-        play = QPushButton('▶')
-        play.setFont(QFont('SansSerif', 40))
-        play.setFixedHeight(70)
-        ff = QPushButton('►►')
-        ff.setFont(QFont('SansSerif', 20))
-        ff.setFixedHeight(70)
-        transport.addWidget(rw)
-        transport.addWidget(pause)
-        transport.addWidget(play)
-        transport.addWidget(ff)
-        midpanel.addLayout(transport)
-        topstuff.addLayout(midpanel)
+        self.midpanel = CueMidpanelLayout()
+        topstuff.addLayout(self.midpanel)
 
         self.notes = QTextEdit()
-        #notes.setPlainText('They were waiting at the table')
-        self.notes.setFont(QFont('SansSerif', 15, 100))
+        self.notes.setFont(UIFonts.notes_font)
         topstuff.addWidget(self.notes)
 
         vbox.addLayout(topstuff)
@@ -93,7 +57,7 @@ class MainWidget(QWidget):
         self.setLayout(hbox)
 
     def set_cue_name(self, name):
-        self.cue_name.setText(name)
+        self.midpanel.cue_name.setText(name)
 
     def set_notes(self, notes):
         self.notes.setPlainText(notes)

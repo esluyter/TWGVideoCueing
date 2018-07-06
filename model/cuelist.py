@@ -93,12 +93,12 @@ class Cue:
             self.audio_routing)
 
 class CueList(Publisher):
-    def __init__(self, path=None, fire_on_update=False):
+    def __init__(self, path=None, rwff_speed=8.0):
         super().__init__()
         self.role = 'model'
         self.bus_states = [BusState() for i in range(5)]
         self.current_routing = AudioRouting()
-        self.fire_on_update = fire_on_update
+        self.rwff_speed = rwff_speed
         self.load_path(path)
 
     def __repr__(self):
