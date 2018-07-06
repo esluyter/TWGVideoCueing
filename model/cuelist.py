@@ -196,7 +196,7 @@ class CueList(Publisher):
 
     def rename_current_cue(self, name):
         self.current_cue().name = name
-        self.changed('cues')
+        self.changed('cue_name')
 
     def delete_current_cue(self):
         del self.cues[self.cue_pointer]

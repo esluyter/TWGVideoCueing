@@ -8,6 +8,7 @@ Author: Eric Sluyter
 Last edited: July 2018
 """
 
+from widgets.fonts import UIFonts
 from widgets.buswidgets import (CuePositionWidget, CueSpeedWidget, CueZoomWidget,
     CueMediaWidget, CueVolumeWidget)
 from widgets.littlewidgets import QHLine, QNumberBox
@@ -19,11 +20,6 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 
 class BusWidget(QWidget):
-    title_font = QFont('SansSerif', 20)
-    label_font = QFont('SansSerif', 10, 100)
-    butt_font = QFont('SansSerif', 10)
-
-
     def __init__(self, letter):
         super().__init__()
         self.letter = letter
@@ -33,7 +29,7 @@ class BusWidget(QWidget):
         vbox = QVBoxLayout()
 
         title = QLabel('Bus ' + self.letter)
-        title.setFont(self.title_font)
+        title.setFont(UIFonts.title_font)
         vbox.addWidget(title)
 
         vbox.addWidget(QHLine())
@@ -75,7 +71,7 @@ class BusWidget(QWidget):
         subvbox = QVBoxLayout()
         subvbox.setSpacing(0)
         label = QLabel('Current play position')
-        label.setFont(self.label_font)
+        label.setFont(UIFonts.label_font)
         subvbox.addWidget(label)
         subhbox = QHBoxLayout()
         subhbox.setSpacing(10)
@@ -89,9 +85,9 @@ class BusWidget(QWidget):
         subsubvbox = QVBoxLayout()
         subsubvbox.setSpacing(0)
         capturethisbutt = QPushButton('Capture this')
-        capturethisbutt.setFont(self.butt_font)
+        capturethisbutt.setFont(UIFonts.butt_font)
         captureallbutt = QPushButton('Capture all')
-        captureallbutt.setFont(self.butt_font)
+        captureallbutt.setFont(UIFonts.butt_font)
         subsubvbox.addWidget(capturethisbutt)
         subsubvbox.addWidget(captureallbutt)
         subhbox.addLayout(subsubvbox)
@@ -102,7 +98,7 @@ class BusWidget(QWidget):
         subhbox = QHBoxLayout()
         subhbox.addStretch(1)
         setcueposbutt = QPushButton('Set cue position')
-        setcueposbutt.setFont(self.butt_font)
+        setcueposbutt.setFont(UIFonts.butt_font)
         subhbox.addWidget(setcueposbutt)
         subvbox.addLayout(subhbox)
         vbox.addLayout(subvbox)

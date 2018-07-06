@@ -15,10 +15,32 @@ from widgets.fonts import UIFonts
 from widgets.littlewidgets import QNumberBox
 from PyQt5.QtWidgets import (QWidget, QCheckBox, QComboBox, QSlider, QLabel,
     QHBoxLayout, QVBoxLayout, QSizePolicy)
+from PyQt5.QtGui import QColor, QPalette
 from PyQt5.QtCore import Qt
 
+#superclass
+class BusCueComponent(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
-class CueMediaWidget(QWidget):
+        self.edited = False
+        self.cue_num = None
+        self.default_bg = QColor('transparent')
+        self.edited_bg = QColor(255, 200, 200)
+        self.setAutoFillBackground(True)
+
+    def numStateChanged(self):
+        self.setEdited(self.getValue() != self.cue_num)
+
+    def setEdited(self, edited):
+        if edited == self.edited:
+            return
+        self.edited = edited
+        p = self.palette()
+        p.setColor(QPalette.Background, self.edited_bg if edited else self.default_bg)
+        self.setPalette(p)
+
+class CueMediaWidget(BusCueComponent):
     def set_media_info(self, media_info):
         self.media_items = [str(k) + ' - ' + v.name for k, v in media_info.items()]
         self.media_indexes = list(media_info.keys())
@@ -57,12 +79,16 @@ class CueMediaWidget(QWidget):
         self.refreshMedia()
 
         self.check.stateChanged.connect(self.showNumBox)
+        self.media_num.currentIndexChanged.connect(self.numStateChanged)
 
     def refreshMedia(self):
         self.media_num.clear()
         self.media_num.addItems(self.media_items)
 
     def setValue(self, value):
+        self.cue_num = value
+        self.setEdited(False)
+
         if value is None:
             self.setChecked(False)
             self.media_num.setCurrentIndex(0)
@@ -70,9 +96,9 @@ class CueMediaWidget(QWidget):
             self.setChecked(True)
             self.media_num.setCurrentIndex(self.media_indexes.index(value))
 
-    def getValue(self, value):
+    def getValue(self):
         if self.check.isChecked():
-            return self.media_num.currentIndex()
+            return self.media_indexes[self.media_num.currentIndex()]
         else:
             return None
 
@@ -86,8 +112,9 @@ class CueMediaWidget(QWidget):
             self.media_num.show()
         else:
             self.media_num.hide()
+        self.numStateChanged()
 
-class CuePositionWidget(QWidget):
+class CuePositionWidget(BusCueComponent):
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -119,6 +146,7 @@ class CuePositionWidget(QWidget):
         self.setLayout(vbox)
 
         self.check.stateChanged.connect(self.showNumBox)
+        self.pos_num.valueChanged.connect(self.numStateChanged)
 
     def setValue(self, value):
         if value is None:
@@ -128,7 +156,10 @@ class CuePositionWidget(QWidget):
             self.setChecked(True)
             self.pos_num.setValue(value)
 
-    def getValue(self, value):
+        self.cue_num = self.getValue()
+        self.setEdited(False)
+
+    def getValue(self):
         if self.check.isChecked():
             return self.pos_num.value
         else:
@@ -144,8 +175,9 @@ class CuePositionWidget(QWidget):
             self.pos_num.show()
         else:
             self.pos_num.hide()
+        self.numStateChanged()
 
-class CueZoomWidget(QWidget):
+class CueZoomWidget(BusCueComponent):
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -175,6 +207,7 @@ class CueZoomWidget(QWidget):
         self.setLayout(vbox)
 
         self.check.stateChanged.connect(self.showNumBox)
+        self.zoom_num.valueChanged.connect(self.numStateChanged)
 
     def setValue(self, value):
         if value is None:
@@ -184,7 +217,10 @@ class CueZoomWidget(QWidget):
             self.setChecked(True)
             self.zoom_num.setValue(value)
 
-    def getValue(self, value):
+        self.cue_num = self.getValue()
+        self.setEdited(False)
+
+    def getValue(self):
         if self.check.isChecked():
             return self.zoom_num.value
         else:
@@ -200,8 +236,9 @@ class CueZoomWidget(QWidget):
             self.zoom_num.show()
         else:
             self.zoom_num.hide()
+        self.numStateChanged()
 
-class CueSpeedWidget(QWidget):
+class CueSpeedWidget(BusCueComponent):
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -250,6 +287,8 @@ class CueSpeedWidget(QWidget):
         self.setLayout(vbox)
 
         self.check.stateChanged.connect(self.showNumBox)
+        self.speed_num.valueChanged.connect(self.numStateChanged)
+        self.ramp_num.valueChanged.connect(self.numStateChanged)
 
     def setValue(self, value):
         if value is None:
@@ -261,7 +300,10 @@ class CueSpeedWidget(QWidget):
             self.speed_num.setValue(value[0])
             self.ramp_num.setValue(value[1])
 
-    def getValue(self, value):
+        self.cue_num = self.getValue()
+        self.setEdited(False)
+
+    def getValue(self):
         if self.check.isChecked():
             return (self.speed_num.value, self.ramp_num.value)
         else:
@@ -281,8 +323,9 @@ class CueSpeedWidget(QWidget):
             self.speed_num.hide()
             self.ramp_num.hide()
             self.ramp_label.hide()
+        self.numStateChanged()
 
-class CueVolumeWidget(QWidget):
+class CueVolumeWidget(BusCueComponent):
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -338,8 +381,11 @@ class CueVolumeWidget(QWidget):
             self.setChecked(True)
             self.db_num.setValue(value)
             self.db_slider.setValue(value)
+            
+        self.cue_num = self.getValue()
+        self.setEdited(False)
 
-    def getValue(self, value):
+    def getValue(self):
         if self.check.isChecked():
             return self.db_num.value
         else:
@@ -357,9 +403,11 @@ class CueVolumeWidget(QWidget):
         else:
             self.db_num.hide()
             self.db_slider.hide()
+        super().numStateChanged()
 
     def numStateChanged(self):
         self.db_slider.setValue(self.db_num.value)
+        super().numStateChanged()
 
     def sliderStateChanged(self):
         self.db_num.setValue(self.db_slider.value())

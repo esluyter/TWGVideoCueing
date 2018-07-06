@@ -9,7 +9,8 @@ Last edited: July 2018
 """
 
 from widgets.buspanelwidgets import BusWidget, SoundPatchWidget
-from widgets.cuelistwidgets import CueListWidget, CueButtonsLayout, CueMidpanelLayout
+from widgets.cuelistwidgets import (CueListWidget, CueButtonsLayout,
+    CueMidpanelLayout, CueNotesWidget)
 from PyQt5.QtWidgets import (QWidget, QPushButton, QMainWindow, QToolTip, QAction,
     QTextEdit, QLabel, QHBoxLayout, QVBoxLayout, QDesktopWidget, QSizePolicy)
 from PyQt5.QtGui import QFont, QIcon
@@ -38,8 +39,7 @@ class MainWidget(QWidget):
         self.midpanel = CueMidpanelLayout()
         topstuff.addLayout(self.midpanel)
 
-        self.notes = QTextEdit()
-        self.notes.setFont(UIFonts.notes_font)
+        self.notes = CueNotesWidget()
         topstuff.addWidget(self.notes)
 
         vbox.addLayout(topstuff)

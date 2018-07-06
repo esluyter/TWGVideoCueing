@@ -12,8 +12,8 @@ Last edited: July 2018
 from widgets.fonts import UIFonts
 from widgets.littlewidgets import QNumberBox
 from PyQt5.QtWidgets import (QListView, QVBoxLayout, QHBoxLayout, QPushButton,
-    QLabel, QSlider)
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+    QLabel, QSlider, QTextEdit)
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QColor, QPalette
 from PyQt5.QtCore import Qt
 from common.publisher import Publisher
 
@@ -31,6 +31,8 @@ class CueListWidget(QListView, Publisher):
         self.setFont(UIFonts.cuelist_font)
         self.set_cues([''])
         self.selectionModel().currentChanged.connect(self.update_cue_pointer)
+        self.itemDelegate().closeEditor.connect(self.name_changed)
+        self.lock = False
 
     def set_cues(self, cues):
         self.cues = cues
@@ -41,11 +43,21 @@ class CueListWidget(QListView, Publisher):
             self.item_model.appendRow(item)
 
     def set_current_cue(self, index):
+        self.lock = True
         index = self.item_model.index(index, 0)
         self.setCurrentIndex(index)
+        self.lock = False
 
     def update_cue_pointer(self, a, b):
+        if self.lock:
+            return
         self.changed('cue_pointer', self.currentIndex().row())
+
+    def name_changed(self):
+        index = self.currentIndex().row()
+        item = self.item_model.item(index, 0)
+        name = item.text()
+        self.changed('cue_name', name)
 
 class CueButtonsLayout(QVBoxLayout, Publisher):
     def __init__(self):
@@ -57,16 +69,30 @@ class CueButtonsLayout(QVBoxLayout, Publisher):
     def initUI(self):
         self.setSpacing(0)
 
-        self.addWidget(QPushButton('+↑ Insert blank cue before'))
-        self.addWidget(QPushButton('+↓ Insert blank cue after'))
+        blank_before = QPushButton('+↑ Insert blank cue before')
+        blank_after = QPushButton('+↓ Insert blank cue after')
+        blank_before.clicked.connect(self.blank_before_clicked)
+        blank_after.clicked.connect(self.blank_after_clicked)
+        self.addWidget(blank_before)
+        self.addWidget(blank_after)
         self.addSpacing(15)
         self.addWidget(QPushButton('↑ Save as new cue before'))
         self.addWidget(QPushButton('Update cue'))
         self.addWidget(QPushButton('Update and fire cue'))
         self.addWidget(QPushButton('↓ Save as new cue after'))
         self.addSpacing(15)
-        self.addWidget(QPushButton('⌫ Delete cue'))
-        self.addWidget(QPushButton('✎ Rename cue'))
+        delete = QPushButton('⌫ Delete cue')
+        delete.clicked.connect(self.delete_clicked)
+        self.addWidget(delete)
+
+    def blank_before_clicked(self):
+        self.changed('blank_before')
+
+    def blank_after_clicked(self):
+        self.changed('blank_after')
+
+    def delete_clicked(self):
+        self.changed('delete_current')
 
 class CueMidpanelLayout(QVBoxLayout, Publisher):
     def __init__(self):
@@ -133,10 +159,41 @@ class CueMidpanelLayout(QVBoxLayout, Publisher):
 
     def numStateChanged(self):
         self.rwff_slider.setValue(self.rwff_num.value)
+        self.changed('rwff_speed', self.rwff_num.value)
 
     def sliderStateChanged(self):
         self.rwff_num.setValue(self.rwff_slider.value())
+        self.changed('rwff_speed', self.rwff_num.value)
 
     def set_rwff_speed(self, speed):
         self.rwff_slider.setValue(speed)
         self.rwff_num.setValue(speed)
+
+class CueNotesWidget(QTextEdit):
+    def __init__(self):
+        super().__init__()
+        self.cue_text = ''
+        self.default_bg = QColor('white')
+        self.edited_bg = QColor(255, 200, 200)
+        self.edited = False
+        self.initUI()
+
+    def initUI(self):
+        self.setFont(UIFonts.notes_font)
+
+    def keyPressEvent(self, event):
+        QTextEdit.keyPressEvent(self, event)
+        self.setEdited(str(self.toPlainText()) != self.cue_text)
+
+    def setPlainText(self, text):
+        self.cue_text = text
+        QTextEdit.setPlainText(self, text)
+        self.setEdited(False)
+
+    def setEdited(self, edited):
+        if edited == self.edited:
+            return
+        self.edited = edited
+        p = self.palette()
+        p.setColor(QPalette.Base, self.edited_bg if edited else self.default_bg)
+        self.setPalette(p)
