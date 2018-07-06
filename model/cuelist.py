@@ -15,17 +15,8 @@ Last edited: July 2018
 import os
 import csv
 import re
-
-# this is a superclass that implements the Observer pattern
-class Publisher:
-    def __init__(self):
-        self.subscribers = set()
-    def register(self, who):
-        self.subscribers.add(who)
-    def unregister(self, who):
-        self.subscribers.discard(who)
-    def changed(self, what):
-        self.subscribers.update(what)
+from common.publisher import Publisher
+from common.util import *
 
 
 class Media:
@@ -61,10 +52,26 @@ class BusCue:
 
 class AudioRouting:
     def __init__(self, matrix_state=None):
-        self.matrix_state = matrix_state
+        if matrix_state is None:
+            self.matrix_state = make_2d_list(5, 6, False)
+        else:
+            self.matrix_state = matrix_state
+
+    @classmethod
+    def from_csv_string(cls, string):
+        matrix_state = make_2d_list(5, 6, False)
+        for cell in clump(string.split(' '), 3):
+            row = int(cell[0])
+            col = int(cell[1])
+            state = cell[2] == '1'
+            matrix_state[row][col] = state
+        return cls(matrix_state)
 
     def __repr__(self):
         return "AudioRouting(%s)" % self.matrix_state
+
+    def at(self, row, col):
+        return self.matrix_state[row][col]
 
 class Cue:
     def __init__(self, name='', buses=None, notes='', audio_routing=None):
@@ -78,7 +85,7 @@ class Cue:
         name = csv_row.pop(0)
         buses = [BusCue(*[csv_row.pop(0) for i in range(6)]) for j in range(5)]
         notes = csv_row.pop(0)
-        audio_routing = AudioRouting(csv_row.pop(0))
+        audio_routing = AudioRouting.from_csv_string(csv_row.pop(0))
         return cls(name, buses, notes, audio_routing)
 
     def __repr__(self):
@@ -88,6 +95,7 @@ class Cue:
 class CueList(Publisher):
     def __init__(self, path=None, fire_on_update=False):
         super().__init__()
+        self.role = 'model'
         self.bus_states = [BusState() for i in range(5)]
         self.current_routing = AudioRouting()
         self.fire_on_update = fire_on_update

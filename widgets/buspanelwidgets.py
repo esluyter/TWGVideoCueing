@@ -127,6 +127,16 @@ class BusWidget(QWidget):
         vbox.addStretch(1)
         self.setLayout(vbox)
 
+    def set_media_info(self, media_info):
+        self.media.set_media_info(media_info)
+
+    def set_values(self, bus):
+        self.media.setValue(bus.media_index)
+        self.position.setValue(bus.pos)
+        self.speed.setValue(None if bus.speed is None else (bus.speed, bus.ramp_time))
+        self.zoom.setValue(bus.zoom)
+        self.volume.setValue(bus.db)
+
 class SoundPatchWidget(QWidget):
     title_font = QFont('SansSerif', 20)
     label_font = QFont('SansSerif', 10, 100)
@@ -156,9 +166,13 @@ class SoundPatchWidget(QWidget):
             label.setFont(self.label_font)
             grid.addWidget(label, i + 1, 5)
 
-        for i, j in [(i, j) for i in range(6) for j in range(5)]:
-            box = QCheckBox()
-            grid.addWidget(box, i + 1, j)
+        self.cue_matrix = []
+
+        for i in range(5):
+            self.cue_matrix.append([])
+            for j in range(6):
+                self.cue_matrix[i].append(QCheckBox())
+                grid.addWidget(self.cue_matrix[i][j], j + 1, i)
 
         vbox.addLayout(grid)
 
@@ -197,3 +211,8 @@ class SoundPatchWidget(QWidget):
 
         vbox.addStretch(1)
         self.setLayout(vbox)
+
+    def set_cue_routing(self, routing):
+        for i, row in enumerate(self.cue_matrix):
+            for j, checkbox in enumerate(row):
+                checkbox.setChecked(routing.at(i, j))

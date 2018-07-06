@@ -12,3 +12,4 @@ class UIFonts:
     label_font = QFont('SansSerif', 10, 100)
     butt_font = QFont('SansSerif', 10)
     sm_label_font = QFont('SansSerif', 10, -1, True)
+    cuelist_font = QFont('SansSerif', 15)

@@ -17,7 +17,7 @@ from PyQt5.QtWidgets import (QWidget, QCheckBox, QComboBox, QSlider, QLabel,
     QHBoxLayout, QVBoxLayout, QSizePolicy)
 from PyQt5.QtCore import Qt
 
-#TODO: this needs some work!
+
 class CueMediaWidget(QWidget):
     def set_media_info(self, media_info):
         self.media_items = [str(k) + ' - ' + v.name for k, v in media_info.items()]

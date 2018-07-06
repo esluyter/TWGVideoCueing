@@ -9,10 +9,11 @@ Last edited: July 2018
 """
 
 from widgets.buspanelwidgets import BusWidget, SoundPatchWidget
+from widgets.cuelistwidgets import CueListWidget
 from PyQt5.QtWidgets import (QWidget, QPushButton, QMainWindow, QToolTip, QAction,
-    QTextEdit, QLabel, QHBoxLayout, QVBoxLayout, QDesktopWidget, QListView)
-from PyQt5.QtGui import QFont, QIcon, QStandardItemModel, QStandardItem
-#from PyQt5.QtCore import Qt
+    QTextEdit, QLabel, QHBoxLayout, QVBoxLayout, QDesktopWidget)
+from PyQt5.QtGui import QFont, QIcon
+from common.publisher import Publisher
 
 
 class MainWidget(QWidget):
@@ -23,22 +24,8 @@ class MainWidget(QWidget):
     def initUI(self):
         hbox = QHBoxLayout()
 
-        list = QListView()
-        list.setMinimumWidth(150)
-        model = QStandardItemModel(list)
-        cues = ['*100*', 'TBH', '5.4', '6', '7', '9', '17', '25', '28', '30', '31',
-            'EAR ROUTING 2.0', '31.5', '33', '35', '38', '39', '38.5', '47', '47.05',
-            '47.1', '47.2', '50', '50.6', '51', '54', '56', '85', '85.5', '87', '90',
-            'A bus', 'DANCE']
-
-        for cue in cues:
-            item = QStandardItem(cue)
-            model.appendRow(item)
-
-        list.setModel(model)
-        list.setFont(QFont('SansSerif', 15))
-
-        hbox.addWidget(list)
+        self.list = CueListWidget()
+        hbox.addWidget(self.list)
 
         vbox = QVBoxLayout()
 
@@ -59,9 +46,9 @@ class MainWidget(QWidget):
 
         midpanel = QVBoxLayout()
         midpanel.setSpacing(0)
-        cue_name = QLabel('Cue Name')
-        cue_name.setFont(QFont('SansSerif', 40))
-        midpanel.addWidget(cue_name)
+        self.cue_name = QLabel('Cue Name')
+        self.cue_name.setFont(QFont('SansSerif', 40))
+        midpanel.addWidget(self.cue_name)
         gobutton = QPushButton('GO')
         gobutton.setFont(QFont('SansSerif', 50))
         midpanel.addWidget(gobutton)
@@ -86,37 +73,48 @@ class MainWidget(QWidget):
         midpanel.addLayout(transport)
         topstuff.addLayout(midpanel)
 
-        notes = QTextEdit()
+        self.notes = QTextEdit()
         #notes.setPlainText('They were waiting at the table')
-        notes.setFont(QFont('SansSerif', 15, 100))
-        topstuff.addWidget(notes)
+        self.notes.setFont(QFont('SansSerif', 15, 100))
+        topstuff.addWidget(self.notes)
 
         vbox.addLayout(topstuff)
 
         #vbox.addWidget(QHLine())
 
-        buses = QHBoxLayout()
-        buses.addWidget(BusWidget('A'))
-        buses.addWidget(BusWidget('B'))
-        buses.addWidget(BusWidget('C'))
-        buses.addWidget(BusWidget('D'))
-        buses.addWidget(BusWidget('E'))
-        buses.addWidget(SoundPatchWidget())
-        vbox.addLayout(buses)
+        self.buses = [BusWidget(letter) for letter in ['A', 'B', 'C', 'D', 'E']]
+        buslayout = QHBoxLayout()
+        for bus in self.buses:
+            buslayout.addWidget(bus)
+        self.sound = SoundPatchWidget()
+        buslayout.addWidget(self.sound)
+        vbox.addLayout(buslayout)
         hbox.addLayout(vbox)
         self.setLayout(hbox)
 
-class MainWindow(QMainWindow):
+    def set_cue_name(self, name):
+        self.cue_name.setText(name)
+
+    def set_notes(self, notes):
+        self.notes.setPlainText(notes)
+
+    def set_media_info(self, media_info):
+        for bus in self.buses:
+            bus.set_media_info(media_info)
+
+class MainWindow(QMainWindow, Publisher):
 
     def __init__(self):
-        super().__init__()
+        QMainWindow.__init__(self)
+        Publisher.__init__(self)
+        self.role = 'view'
         self.initUI()
 
     def initUI(self):
         QToolTip.setFont(QFont('SansSerif', 10))
 
-        mainwidget = MainWidget()
-        self.setCentralWidget(mainwidget)
+        self.mainwidget = MainWidget()
+        self.setCentralWidget(self.mainwidget)
 
         action = QAction(QIcon('icons/poo.png'), '&Test', self)
         action.triggered.connect(self.close)
