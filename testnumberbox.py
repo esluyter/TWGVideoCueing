@@ -3,7 +3,8 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout
 from widgets.littlewidgets import QNumberBox
-from widgets.buswidgets import CuePositionWidget, CueSpeedWidget, CueVolumeWidget
+from widgets.buswidgets import CueMediaWidget, CueSpeedWidget, CueVolumeWidget
+from model.cuelist import Media
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -15,8 +16,13 @@ if __name__ == '__main__':
 
     l = QVBoxLayout()
 
-    pw = CueVolumeWidget()
+    pw = CueMediaWidget()
     pw1 = CueSpeedWidget()
+
+    media_info = {0: Media('BLANK', 0), 1: Media('ISNR', 200.1), 3: Media('TBH pt 1', 34.56)}
+    pw.set_media_info(media_info)
+    pw.setValue(3)
+
     l.addWidget(pw)
     l.addWidget(pw1)
 

@@ -1,6 +1,12 @@
 """
 Custom compound widgets for bus panel
 
+- CueMediaWidget
+- CuePositionWidget
+- CueZoomWidget
+- CueSpeedWidget
+- CueVolumeWidget
+
 Author: Eric Sluyter
 Last edited: July 2018
 """
@@ -13,10 +19,16 @@ from PyQt5.QtCore import Qt
 
 #TODO: this needs some work!
 class CueMediaWidget(QWidget):
-    media_items = ['0 - BLACK', '1 - ISNR', '2 - TBH', '3 - TOKYO']
+    def set_media_info(self, media_info):
+        self.media_items = [str(k) + ' - ' + v.name for k, v in media_info.items()]
+        self.media_indexes = list(media_info.keys())
+        self.refreshMedia()
 
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        self.media_items = ['0 - BLANK']
+        self.media_indexes = [0]
 
         self.initUI()
         self.setValue(None)
@@ -33,7 +45,6 @@ class CueMediaWidget(QWidget):
         hbox.setSpacing(10)
         self.check = QCheckBox()
         self.media_num = QComboBox()
-        self.media_num.addItems(self.media_items)
         sp = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         sp.setRetainSizeWhenHidden(True)
         self.media_num.setSizePolicy(sp)
@@ -43,20 +54,25 @@ class CueMediaWidget(QWidget):
         vbox.addLayout(hbox)
         self.setLayout(vbox)
 
+        self.refreshMedia()
+
         self.check.stateChanged.connect(self.showNumBox)
+
+    def refreshMedia(self):
+        self.media_num.clear()
+        self.media_num.addItems(self.media_items)
 
     def setValue(self, value):
         if value is None:
             self.setChecked(False)
-            #self.media_num.setValue(0)
+            self.media_num.setCurrentIndex(0)
         else:
             self.setChecked(True)
-            #self.media_num.setValue(value)
+            self.media_num.setCurrentIndex(self.media_indexes.index(value))
 
     def getValue(self, value):
         if self.check.isChecked():
-            pass
-            #return self.media_num.value
+            return self.media_num.currentIndex()
         else:
             return None
 
