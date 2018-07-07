@@ -11,17 +11,23 @@ Author: Eric Sluyter
 Last edited: July 2018
 """
 
+from common.publisher import Publisher
+from common.util import *
 from widgets.fonts import UIFonts
 from widgets.littlewidgets import QNumberBox
+from model.cuelist import AudioRouting
 from PyQt5.QtWidgets import (QWidget, QCheckBox, QComboBox, QSlider, QLabel,
-    QHBoxLayout, QVBoxLayout, QSizePolicy)
+    QHBoxLayout, QVBoxLayout, QGridLayout, QSizePolicy)
 from PyQt5.QtGui import QColor, QPalette
 from PyQt5.QtCore import Qt
 
 #superclass
-class BusCueComponent(QWidget):
+class BusCueComponent(QWidget, Publisher):
     def __init__(self, parent=None):
-        super().__init__(parent)
+        QWidget.__init__(self, parent)
+        Publisher.__init__(self)
+
+        self.role = 'view'
 
         self.edited = False
         self.cue_num = None
@@ -39,6 +45,7 @@ class BusCueComponent(QWidget):
         p = self.palette()
         p.setColor(QPalette.Background, self.edited_bg if edited else self.default_bg)
         self.setPalette(p)
+        self.changed('edited')
 
 class CueMediaWidget(BusCueComponent):
     def set_media_info(self, media_info):
@@ -381,7 +388,7 @@ class CueVolumeWidget(BusCueComponent):
             self.setChecked(True)
             self.db_num.setValue(value)
             self.db_slider.setValue(value)
-            
+
         self.cue_num = self.getValue()
         self.setEdited(False)
 
@@ -411,3 +418,75 @@ class CueVolumeWidget(BusCueComponent):
 
     def sliderStateChanged(self):
         self.db_num.setValue(self.db_slider.value())
+
+class AudioMatrixWidget(QWidget, Publisher):
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        Publisher.__init__(self)
+
+        self.role = 'view'
+
+        self.edited = False
+        self.cue_matrix = make_2d_list(5, 6, False)
+        self.default_bg = QColor('transparent')
+        self.edited_bg = QColor(255, 200, 200)
+        self.setAutoFillBackground(True)
+
+        self.initUI()
+
+    def initUI(self):
+        grid = QGridLayout()
+
+        for bus, i in zip(['A', 'B', 'C', 'D', 'E'], range(5)):
+            label = QLabel(' ' + bus)
+            label.setFont(UIFonts.label_font)
+            grid.addWidget(label, 0, i)
+
+        for dest, i in zip(['Ear 1', 'Ear 2', 'Ear 3', 'Room', 'Extra',
+                'Phones'], range(6)):
+            label = QLabel(dest)
+            label.setFont(UIFonts.label_font)
+            grid.addWidget(label, i + 1, 5)
+
+        self.matrix = []
+
+        for i in range(5):
+            self.matrix.append([])
+            for j in range(6):
+                checkbox = QCheckBox()
+                checkbox.stateChanged.connect(self.matrixStateChanged)
+                self.matrix[i].append(checkbox)
+                grid.addWidget(self.matrix[i][j], j + 1, i)
+
+        self.setLayout(grid)
+
+    def set_cue_routing(self, routing):
+        self.cue_matrix = routing.matrix_state
+        self.setEdited(False)
+
+        for i, row in enumerate(self.matrix):
+            for j, checkbox in enumerate(row):
+                checkbox.setChecked(routing.at(i, j))
+
+    def getValue(self):
+        temp = make_2d_list(5, 6, False)
+        for i, row in enumerate(self.matrix):
+            for j, checkbox in enumerate(row):
+                if checkbox.isChecked():
+                    temp[i][j] = True
+        return temp
+
+    def as_audio_routing(self):
+        return AudioRouting(self.getValue())
+
+    def matrixStateChanged(self):
+        self.setEdited(self.getValue() != self.cue_matrix)
+
+    def setEdited(self, edited):
+        if edited == self.edited:
+            return
+        self.edited = edited
+        p = self.palette()
+        p.setColor(QPalette.Background, self.edited_bg if edited else self.default_bg)
+        self.setPalette(p)
+        self.changed('edited')

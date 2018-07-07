@@ -8,20 +8,26 @@ Author: Eric Sluyter
 Last edited: July 2018
 """
 
+from common.publisher import Publisher
 from widgets.fonts import UIFonts
 from widgets.buswidgets import (CuePositionWidget, CueSpeedWidget, CueZoomWidget,
-    CueMediaWidget, CueVolumeWidget)
+    CueMediaWidget, CueVolumeWidget, AudioMatrixWidget)
 from widgets.littlewidgets import QHLine, QNumberBox
 from widgets.painterwidgets import LevelMeter
+from model.cuelist import BusCue
 from PyQt5.QtWidgets import (QWidget, QPushButton,
     QLabel, QSlider, QHBoxLayout, QVBoxLayout, QCheckBox,
     QSizePolicy, QGridLayout, QComboBox)
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 
-class BusWidget(QWidget):
+class BusWidget(QWidget, Publisher):
     def __init__(self, letter):
-        super().__init__()
+        QWidget.__init__(self)
+        Publisher.__init__(self)
+
+        self.role = 'view'
+
         self.letter = letter
         self.initUI()
 
@@ -37,6 +43,7 @@ class BusWidget(QWidget):
         subvbox = QVBoxLayout()
         subvbox.setSpacing(0)
         self.media = CueMediaWidget()
+        self.media.register(self)
         subvbox.addWidget(self.media)
         vbox.addLayout(subvbox)
 
@@ -45,15 +52,18 @@ class BusWidget(QWidget):
         subvbox = QVBoxLayout()
         subvbox.setSpacing(0)
         self.position = CuePositionWidget()
+        self.position.register(self)
         subvbox.addWidget(self.position)
         subvbox.addSpacing(10)
         self.zoom = CueZoomWidget()
+        self.zoom.register(self)
         subvbox.addWidget(self.zoom)
         hbox.addLayout(subvbox)
 
         subvbox = QVBoxLayout()
         subvbox.setSpacing(0)
         self.speed = CueSpeedWidget()
+        self.speed.register(self)
         subvbox.addWidget(self.speed)
         subvbox.addStretch(1)
         hbox.addLayout(subvbox)
@@ -63,9 +73,11 @@ class BusWidget(QWidget):
         subvbox = QVBoxLayout()
         subvbox.setSpacing(0)
         self.volume = CueVolumeWidget()
+        self.volume.register(self)
         subvbox.addWidget(self.volume)
         vbox.addLayout(subvbox)
 
+        vbox.addSpacing(20)
         vbox.addWidget(QHLine())
 
         subvbox = QVBoxLayout()
@@ -123,6 +135,10 @@ class BusWidget(QWidget):
         vbox.addStretch(1)
         self.setLayout(vbox)
 
+    def view_update(self, what, etc):
+        if what == 'edited':
+            self.changed('edited')
+
     def set_media_info(self, media_info):
         self.media.set_media_info(media_info)
 
@@ -133,49 +149,44 @@ class BusWidget(QWidget):
         self.zoom.setValue(bus.zoom)
         self.volume.setValue(bus.db)
 
-class SoundPatchWidget(QWidget):
-    title_font = QFont('SansSerif', 20)
-    label_font = QFont('SansSerif', 10, 100)
+    def edited(self):
+        return (self.media.edited or self.position.edited or self.speed.edited or
+            self.zoom.edited or self.volume.edited)
 
+    def as_bus_cue(self):
+        media_index = self.media.getValue()
+        pos = self.position.getValue()
+        speed = self.speed.getValue()
+        ramp_time = None if speed is None else speed[1]
+        if speed is not None:
+            speed = speed[0]
+        zoom = self.zoom.getValue()
+        db = self.volume.getValue()
+        return BusCue(media_index, pos, speed, ramp_time, zoom, db)
+
+class SoundPatchWidget(QWidget, Publisher):
     def __init__(self):
-        super().__init__()
+        QWidget.__init__(self)
+        Publisher.__init__(self)
+        self.role = 'view'
         self.initUI()
 
     def initUI(self):
         vbox = QVBoxLayout()
         title = QLabel('Cue routing')
-        title.setFont(self.title_font)
+        title.setFont(UIFonts.title_font)
         vbox.addWidget(title)
 
         vbox.addWidget(QHLine())
 
-        grid = QGridLayout()
-
-        for bus, i in zip(['A', 'B', 'C', 'D', 'E'], range(5)):
-            label = QLabel(' ' + bus)
-            label.setFont(self.label_font)
-            grid.addWidget(label, 0, i)
-
-        for dest, i in zip(['Ear 1', 'Ear 2', 'Ear 3', 'Room', 'Extra',
-                'Phones'], range(6)):
-            label = QLabel(dest)
-            label.setFont(self.label_font)
-            grid.addWidget(label, i + 1, 5)
-
-        self.cue_matrix = []
-
-        for i in range(5):
-            self.cue_matrix.append([])
-            for j in range(6):
-                self.cue_matrix[i].append(QCheckBox())
-                grid.addWidget(self.cue_matrix[i][j], j + 1, i)
-
-        vbox.addLayout(grid)
+        self.cue_matrix = AudioMatrixWidget()
+        self.cue_matrix.register(self)
+        vbox.addWidget(self.cue_matrix)
 
         vbox.addSpacing(40)
 
         title = QLabel('Current routing')
-        title.setFont(self.title_font)
+        title.setFont(UIFonts.title_font)
         vbox.addWidget(title)
 
         vbox.addWidget(QHLine())
@@ -190,13 +201,13 @@ class SoundPatchWidget(QWidget):
 
         for bus, i in zip(['A', 'B', 'C', 'D', 'E'], range(5)):
             label = QLabel(' ' + bus)
-            label.setFont(self.label_font)
+            label.setFont(UIFonts.label_font)
             grid.addWidget(label, 1, i)
 
         for dest, i in zip(['Ear 1', 'Ear 2', 'Ear 3', 'Room', 'Extra',
                 'Phones'], range(6)):
             label = QLabel(dest)
-            label.setFont(self.label_font)
+            label.setFont(UIFonts.label_font)
             grid.addWidget(label, i + 2, 5)
 
         for i, j in [(i, j) for i in range(6) for j in range(5)]:
@@ -208,7 +219,12 @@ class SoundPatchWidget(QWidget):
         vbox.addStretch(1)
         self.setLayout(vbox)
 
+    def view_update(self, what, etc):
+        if what == 'edited':
+            self.changed('edited')
+
+    def edited(self):
+        return self.cue_matrix.edited
+
     def set_cue_routing(self, routing):
-        for i, row in enumerate(self.cue_matrix):
-            for j, checkbox in enumerate(row):
-                checkbox.setChecked(routing.at(i, j))
+        self.cue_matrix.set_cue_routing(routing)

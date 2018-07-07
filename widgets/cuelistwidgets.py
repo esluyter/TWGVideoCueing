@@ -77,8 +77,10 @@ class CueButtonsLayout(QVBoxLayout, Publisher):
         self.addWidget(blank_after)
         self.addSpacing(15)
         self.addWidget(QPushButton('↑ Save as new cue before'))
-        self.addWidget(QPushButton('Update cue'))
-        self.addWidget(QPushButton('Update and fire cue'))
+        self.update = QPushButton('Update cue')
+        self.update_fire = QPushButton('Update and fire cue')
+        self.addWidget(self.update)
+        self.addWidget(self.update_fire)
         self.addWidget(QPushButton('↓ Save as new cue after'))
         self.addSpacing(15)
         delete = QPushButton('⌫ Delete cue')
@@ -93,6 +95,22 @@ class CueButtonsLayout(QVBoxLayout, Publisher):
 
     def delete_clicked(self):
         self.changed('delete_current')
+
+    def setEdited(self, edited):
+        p = self.update.palette()
+        if edited:
+            p.setColor(QPalette.Button, QColor(0, 200, 0))
+        else:
+            p.setColor(QPalette.Button, QColor('transparent'))
+        self.update.setAutoFillBackground(True)
+        self.update.setPalette(p)
+        p = self.update_fire.palette()
+        if edited:
+            p.setColor(QPalette.Button, QColor('red'))
+        else:
+            p.setColor(QPalette.Button, QColor('transparent'))
+        self.update_fire.setAutoFillBackground(True)
+        self.update_fire.setPalette(p)
 
 class CueMidpanelLayout(QVBoxLayout, Publisher):
     def __init__(self):
@@ -169,9 +187,13 @@ class CueMidpanelLayout(QVBoxLayout, Publisher):
         self.rwff_slider.setValue(speed)
         self.rwff_num.setValue(speed)
 
-class CueNotesWidget(QTextEdit):
+class CueNotesWidget(QTextEdit, Publisher):
     def __init__(self):
-        super().__init__()
+        QTextEdit.__init__(self)
+        Publisher.__init__(self)
+
+        self.role = 'view'
+
         self.cue_text = ''
         self.default_bg = QColor('white')
         self.edited_bg = QColor(255, 200, 200)
@@ -197,3 +219,4 @@ class CueNotesWidget(QTextEdit):
         p = self.palette()
         p.setColor(QPalette.Base, self.edited_bg if edited else self.default_bg)
         self.setPalette(p)
+        self.changed('edited')

@@ -18,9 +18,11 @@ from common.publisher import Publisher
 from widgets.fonts import UIFonts
 
 
-class MainWidget(QWidget):
+class MainWidget(QWidget, Publisher):
     def __init__(self):
-        super().__init__()
+        QWidget.__init__(self)
+        Publisher.__init__(self)
+        self.role = 'view'
         self.initUI()
 
     def initUI(self):
@@ -40,6 +42,7 @@ class MainWidget(QWidget):
         topstuff.addLayout(self.midpanel)
 
         self.notes = CueNotesWidget()
+        self.notes.register(self)
         topstuff.addWidget(self.notes)
 
         vbox.addLayout(topstuff)
@@ -50,11 +53,17 @@ class MainWidget(QWidget):
         buslayout = QHBoxLayout()
         for bus in self.buses:
             buslayout.addWidget(bus)
+            bus.register(self)
         self.sound = SoundPatchWidget()
+        self.sound.register(self)
         buslayout.addWidget(self.sound)
         vbox.addLayout(buslayout)
         hbox.addLayout(vbox)
         self.setLayout(hbox)
+
+    def view_update(self, what, etc):
+        if what == 'edited':
+            self.changed('edited')
 
     def set_cue_name(self, name):
         self.midpanel.cue_name.setText(name)

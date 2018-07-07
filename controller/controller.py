@@ -12,6 +12,7 @@ class CueController:
         self.view = view
         model.register(self)
         view.register(self)
+        view.mainwidget.register(self)
         view.mainwidget.list.register(self)
         view.mainwidget.buttons.register(self)
         view.mainwidget.midpanel.register(self)
@@ -34,6 +35,7 @@ class CueController:
 
     def view_update(self, what, etc):
         model = self.model
+        view = self.view
         if what == 'cue_pointer' and etc != model.cue_pointer:
             model.goto_cue(etc)
         if what == 'cue_name' and etc != model.current_cue().name:
@@ -46,6 +48,16 @@ class CueController:
             model.delete_current_cue()
         if what == 'rwff_speed' and etc != model.rwff_speed:
             model.rwff_speed = etc
+        if what == 'edited':
+            edited = False
+            for bus in view.mainwidget.buses:
+                if bus.edited():
+                    edited = True
+            if view.mainwidget.sound.edited():
+                edited = True
+            if view.mainwidget.notes.edited:
+                edited = True
+            view.mainwidget.buttons.setEdited(edited)
 
     def view_media_info(self):
         self.view.mainwidget.set_media_info(self.model.media_info)

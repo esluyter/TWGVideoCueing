@@ -37,14 +37,14 @@ class BusState:
         return "BusState(%s, %s, %s)" % (self.media_index, self.pos, self.active)
 
 class BusCue:
-    def __init__(self, media_index='n', pos='n', speed='n', ramp_time='n',
-            zoom='n', db='n'):
-        self.media_index = None if media_index == 'n' else int(media_index)
-        self.pos = None if pos == 'n' else float(pos)
-        self.speed = None if speed == 'n' else float(speed)
-        self.ramp_time = None if ramp_time == 'n' else float(ramp_time)
-        self.zoom = None if zoom == 'n' else float(zoom)
-        self.db = None if db == 'n' else float(db)
+    def __init__(self, media_index=None, pos=None, speed=None, ramp_time=None,
+            zoom=None, db=None):
+        self.media_index = None if media_index == 'n' or media_index is None else int(media_index)
+        self.pos = None if pos == 'n' or pos is None else float(pos)
+        self.speed = None if speed == 'n' or speed is None else float(speed)
+        self.ramp_time = None if ramp_time == 'n' or ramp_time is None else float(ramp_time)
+        self.zoom = None if zoom == 'n' or zoom is None else float(zoom)
+        self.db = None if db == 'n' or db is None else float(db)
 
     def __repr__(self):
         return "BusCue(%s, %s, %s, %s, %s, %s)" % (self.media_index, self.pos,
