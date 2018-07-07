@@ -106,7 +106,7 @@ class CueButtonsLayout(QVBoxLayout, Publisher):
         self.update.setPalette(p)
         p = self.update_fire.palette()
         if edited:
-            p.setColor(QPalette.Button, QColor('red'))
+            p.setColor(QPalette.Button, QColor(255, 150, 150))
         else:
             p.setColor(QPalette.Button, QColor('transparent'))
         self.update_fire.setAutoFillBackground(True)

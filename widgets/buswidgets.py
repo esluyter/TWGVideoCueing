@@ -219,7 +219,7 @@ class CueZoomWidget(BusCueComponent):
     def setValue(self, value):
         if value is None:
             self.setChecked(False)
-            self.zoom_num.setValue(0)
+            self.zoom_num.setValue(100)
         else:
             self.setChecked(True)
             self.zoom_num.setValue(value)
@@ -300,7 +300,7 @@ class CueSpeedWidget(BusCueComponent):
     def setValue(self, value):
         if value is None:
             self.setChecked(False)
-            self.speed_num.setValue(0)
+            self.speed_num.setValue(1)
             self.ramp_num.setValue(0)
         else:
             self.setChecked(True)
