@@ -21,9 +21,11 @@ if __name__ == '__main__':
     icon = QIcon(path)
     app.setWindowIcon(icon)
 
-    model = CueList('../TTHA')
+    model = CueList()
     view = MainWindow()
     controller = CueController(model, view)
+
+    model.load_path(None)
 
     view.show()
 

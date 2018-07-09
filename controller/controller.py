@@ -5,6 +5,8 @@ Author: Eric Sluyter
 Last edited: July 2018
 """
 
+from os.path import basename
+
 class CueController:
     def __init__(self, model, view):
         self.model = model
@@ -31,12 +33,21 @@ class CueController:
             self.view_current_cue_name()
         if what == 'media_info':
             self.view_media_info()
+        if what == 'path':
+            if etc is None:
+                self.view.setWindowTitle('New Cue List')
+            else:
+                self.view.setWindowTitle(basename(etc))
+                self.view.setWindowModified(False)
+        if what == 'unsaved_changes':
+            self.view.setWindowModified(True)
 
     def view_update(self, what, etc):
         model = self.model
         view = self.view
         if what == 'cue_pointer' and etc != model.cue_pointer:
-            model.goto_cue(etc)
+            if (view.confirm_cue_change()):
+                model.goto_cue(etc)
         if what == 'cue_name' and etc != model.current_cue().name:
             model.rename_current_cue(etc)
         if what == 'blank_before':
@@ -61,6 +72,18 @@ class CueController:
             model.rwff_speed = etc
         if what == 'edited':
             view.mainwidget.buttons.setEdited(view.mainwidget.edited())
+        if what == 'open':
+            model.load_path(etc)
+        if what == 'new':
+            model.load_path(None)
+        if what == 'save':
+            if model.path is None:
+                view.save_as()
+            else:
+                if view.mainwidget.edited():
+                    model.replace_current_cue(view.mainwidget.as_cue())
+        if what == 'save_as':
+            model.save_as(etc)
 
     def view_media_info(self):
         self.view.mainwidget.set_media_info(self.model.media_info)

@@ -13,6 +13,7 @@ Last edited: July 2018
 """
 
 import os
+import time
 import csv
 import re
 from common.publisher import Publisher
@@ -50,6 +51,10 @@ class BusCue:
         return "BusCue(%s, %s, %s, %s, %s, %s)" % (self.media_index, self.pos,
             self.speed, self.ramp_time, self.zoom, self.db)
 
+    def to_csv_array(self):
+        return ['n' if x is None else str(x) for x in [self.media_index, self.pos,
+            self.speed, self.ramp_time, self.zoom, self.db]]
+
 class AudioRouting:
     def __init__(self, matrix_state=None):
         if matrix_state is None:
@@ -66,6 +71,14 @@ class AudioRouting:
             state = cell[2] == '1'
             matrix_state[row][col] = state
         return cls(matrix_state)
+
+    def to_csv_string(self):
+        list = []
+        for j in range(6):
+            for i in range(5):
+                int = 1 if self.matrix_state[i][j] else 0
+                list.append('%i %i %i' % (i, j, int))
+        return ' '.join(list)
 
     def __repr__(self):
         return "AudioRouting(%s)" % self.matrix_state
@@ -88,6 +101,14 @@ class Cue:
         audio_routing = AudioRouting.from_csv_string(csv_row.pop(0))
         return cls(name, buses, notes, audio_routing)
 
+    def to_csv_row(self):
+        list = [self.name]
+        for bus in self.buses:
+            list += bus.to_csv_array()
+        list += [self.notes, self.audio_routing.to_csv_string()]
+        return list
+
+
     def __repr__(self):
         return "Cue('%s', %s, '%s', %s)" % (self.name, self.buses, self.notes,
             self.audio_routing)
@@ -106,24 +127,52 @@ class CueList(Publisher):
 
     def load_path(self, path):
         self.path = path
+        self.changed('path', path)
         self.cue_pointer = 0
-        self.load_cues()
         self.load_media_info()
+        self.load_cues()
+
+    def default_cue(self):
+        self.cues = [Cue('BLANK', [BusCue() for i in range(5)], '', AudioRouting())]
 
     def load_cues(self):
         if self.path is None:
-            self.cues = [Cue('BLANK', [BusCue() for i in range(5)], '', AudioRouting())]
+            self.default_cue()
         else:
             self.cues = []
-            with open(os.path.join(self.path, 'cues.csv'), 'r') as csv_file:
+            with open(os.path.join(self.path, 'cues.csv'), 'r', newline='') as csv_file:
                 reader = csv.reader(csv_file)
                 next(reader) #skip header row
                 for row in reader:
                     self.cues.append(Cue.from_csv_row(row))
         self.changed('cues')
 
+    def write_backup(self):
+        os.rename(os.path.join(self.path, 'cues.csv'),
+            os.path.join(self.path, 'backups/cues ' + time.strftime('%Y:%m:%d %H.%M.%S') + '.csv'))
+
     def write_cues(self):
-        pass
+        header = 'Cue,A media,A pos,A speed,A ramp,A zoom,A db,B media,B pos,B speed,B ramp,B zoom,B db,C media,C pos,C speed,C ramp,C zoom,C db,D media,D pos,D speed,D ramp,D zoom,D db,E media,E pos,E speed,E ramp,E zoom,E db,Notes,Matrix\n'
+
+        with open(os.path.join(self.path, 'cues.csv'), 'w', newline='') as csv_file:
+            csv_file.write(header)
+            writer = csv.writer(csv_file)
+            for cue in self.cues:
+                writer.writerow(cue.to_csv_row())
+
+    def write_if_path(self):
+        if self.path is None:
+            self.changed('unsaved_changes')
+        else:
+            self.write_backup()
+            self.write_cues()
+
+    def save_as(self, path):
+        self.path = path
+        os.mkdir(path)
+        os.mkdir(os.path.join(path, 'backups'))
+        self.write_cues()
+        self.write_media_info()
 
     def load_media_info(self):
         self.media_info = {0: Media('BLANK', 0)}
@@ -142,8 +191,9 @@ class CueList(Publisher):
         pass
 
     def write_media_info(self):
-        #TODO: write media info to file
-        pass
+        with open(os.path.join(self.path, 'mediainfo.txt'), 'w') as media_file:
+            for i, media in self.media_info.items():
+                media_file.write('%i, "%s" %f;\n' % (i, media.name, media.duration))
 
     def set_bus_pos(self, index, pos):
         self.bus_states[index].pos = pos
@@ -175,32 +225,43 @@ class CueList(Publisher):
     def replace_current_cue(self, cue):
         self.cues[self.cue_pointer] = cue
         self.changed('cues')
+        self.write_if_path()
 
     def add_cue_after_current(self, cue):
         self.cue_pointer += 1
         self.cues.insert(self.cue_pointer, cue)
         self.changed('cues')
+        self.write_if_path()
 
     def add_cue_before_current(self, cue):
         self.cues.insert(self.cue_pointer, cue)
         self.changed('cues')
+        self.write_if_path()
 
     def add_empty_cue_after_current(self, name):
         self.cue_pointer += 1
         self.cues.insert(self.cue_pointer, Cue(name))
         self.changed('cues')
+        self.write_if_path()
 
     def add_empty_cue_before_current(self, name):
         self.cues.insert(self.cue_pointer, Cue(name))
         self.changed('cues')
+        self.write_if_path()
 
     def rename_current_cue(self, name):
         self.current_cue().name = name
         self.changed('cue_name')
+        self.write_if_path()
 
     def delete_current_cue(self):
         del self.cues[self.cue_pointer]
+        if len(self.cues) == 0:
+            self.default_cue()
+        if self.cue_pointer == len(self.cues):
+            self.cue_pointer -= 1
         self.changed('cues')
+        self.write_if_path()
 
     def fire_current_cue(self, name):
         pass
