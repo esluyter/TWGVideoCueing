@@ -11,7 +11,7 @@ Last edited: July 2018
 from common.publisher import Publisher
 from widgets.fonts import UIFonts
 from widgets.buswidgets import (CuePositionWidget, CueSpeedWidget, CueZoomWidget,
-    CueMediaWidget, CueVolumeWidget, AudioMatrixWidget)
+    CueMediaWidget, CueVolumeWidget, AudioMatrixWidget, CurrentPosWidget)
 from widgets.littlewidgets import QHLine, QNumberBox
 from widgets.painterwidgets import LevelMeter
 from model.cuelist import BusCue
@@ -82,16 +82,9 @@ class BusWidget(QWidget, Publisher):
 
         subvbox = QVBoxLayout()
         subvbox.setSpacing(0)
-        label = QLabel('Current play position')
-        label.setFont(UIFonts.label_font)
-        subvbox.addWidget(label)
-        subhbox = QHBoxLayout()
-        subhbox.setSpacing(10)
-        self.current_pos_slider = QSlider(Qt.Horizontal)
-        self.current_pos_label = QLabel('0%')
-        subhbox.addWidget(self.current_pos_slider)
-        subhbox.addWidget(self.current_pos_label)
-        subvbox.addLayout(subhbox)
+        self.current_pos = CurrentPosWidget()
+        self.current_pos.register(self)
+        subvbox.addWidget(self.current_pos)
         subhbox = QHBoxLayout()
         subhbox.setSpacing(0)
         subsubvbox = QVBoxLayout()
@@ -141,6 +134,9 @@ class BusWidget(QWidget, Publisher):
 
     def set_media_info(self, media_info):
         self.media.set_media_info(media_info)
+
+    def set_current_pos(self, pos):
+        self.current_pos.setValue(pos)
 
     def set_values(self, bus):
         self.media.setValue(bus.media_index)
@@ -193,11 +189,13 @@ class SoundPatchWidget(QWidget, Publisher):
 
         grid = QGridLayout()
 
+        self.meters = []
+
         for i in range(5):
-            meter = LevelMeter()
-            meter.setFixedHeight(30)
-            meter.set_gap(2)
-            grid.addWidget(meter, 0, i)
+            self.meters.append(LevelMeter())
+            self.meters[i].setFixedHeight(30)
+            self.meters[i].set_gap(2)
+            grid.addWidget(self.meters[i], 0, i)
 
         for bus, i in zip(['A', 'B', 'C', 'D', 'E'], range(5)):
             label = QLabel(' ' + bus)

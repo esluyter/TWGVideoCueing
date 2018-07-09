@@ -1,7 +1,7 @@
 #!/usr/local/bin/python3
 
 """
-Testing the Python implementation of TWG Cueing System
+Python implementation of TWG Cueing System
 
 Author: Eric Sluyter
 Last edited: July 2018

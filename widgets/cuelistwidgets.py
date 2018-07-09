@@ -146,6 +146,7 @@ class CueMidpanelLayout(QVBoxLayout, Publisher):
         self.addWidget(self.cue_name)
 
         self.gobutton = QPushButton('GO')
+        self.gobutton.clicked.connect(self.go_clicked)
         self.gobutton.setFont(UIFonts.gobutton_font)
         self.addWidget(self.gobutton)
 
@@ -193,6 +194,9 @@ class CueMidpanelLayout(QVBoxLayout, Publisher):
 
         self.rwff_num.valueChanged.connect(self.numStateChanged)
         self.rwff_slider.valueChanged.connect(self.sliderStateChanged)
+
+    def go_clicked(self):
+        self.changed('go')
 
     def numStateChanged(self):
         self.rwff_slider.setValue(self.rwff_num.value)

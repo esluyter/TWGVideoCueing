@@ -156,7 +156,6 @@ class MainWindow(QMainWindow, Publisher):
 
         self.resize(1100, 800)
         self.center()
-        self.setWindowTitle('New Cue List')
         self.statusBar().showMessage('Ready')
         self.show()
 
@@ -218,6 +217,7 @@ class MainWindow(QMainWindow, Publisher):
 
     def closeEvent(self, event):
         if self.confirm_close():
+            self.changed('quit')
             event.accept()
         else:
             event.ignore()

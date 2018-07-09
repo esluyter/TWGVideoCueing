@@ -47,6 +47,35 @@ class BusCueComponent(QWidget, Publisher):
         self.setPalette(p)
         self.changed('edited')
 
+
+class CurrentPosWidget(BusCueComponent):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.initUI()
+
+    def initUI(self):
+        vbox = QVBoxLayout()
+        vbox.setSpacing(0)
+        vbox.setContentsMargins(0, 0, 0, 0)
+        hbox = QHBoxLayout()
+        hbox.setContentsMargins(0, 0, 0, 0)
+        label = QLabel('Current position')
+        label.setFont(UIFonts.label_font)
+        self.pos_label = QLabel('0%')
+        hbox.addWidget(label)
+        hbox.addStretch(1)
+        hbox.addWidget(self.pos_label)
+        vbox.addLayout(hbox)
+        self.pos_slider = QSlider(Qt.Horizontal)
+        self.pos_slider.setMaximum(100)
+        self.pos_slider.setMinimum(0)
+        vbox.addWidget(self.pos_slider)
+        self.setLayout(vbox)
+
+    def setValue(self, value):
+        self.pos_slider.setValue(value)
+        self.pos_label.setText('%s%%' % str(round(value, 2)))
+
 class CueMediaWidget(BusCueComponent):
     def set_media_info(self, media_info):
         self.media_items = [str(k) + ' - ' + v.name for k, v in media_info.items()]

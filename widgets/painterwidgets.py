@@ -18,13 +18,21 @@ class LevelMeter(QWidget):
         super().__init__()
         self.pen = QPen(QColor(0, 0, 0, 0))
         self.pen.setWidth(0)
-        self.left_db = -12
-        self.right_db = -6
+        self.left_db = -60
+        self.right_db = -60
         self.gap = 5
 
     def set_dbs(self, l, r):
         self.left_db = l
         self.right_db = r
+        self.update()
+
+    def set_left_db(self, db):
+        self.left_db = db
+        self.update()
+
+    def set_right_db(self, db):
+        self.right_db = db
         self.update()
 
     def set_gap(self, gap):

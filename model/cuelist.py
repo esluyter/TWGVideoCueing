@@ -55,6 +55,16 @@ class BusCue:
         return ['n' if x is None else str(x) for x in [self.media_index, self.pos,
             self.speed, self.ramp_time, self.zoom, self.db]]
 
+    def to_osc_array(self):
+        return [
+            'n' if self.media_index is None else str(self.media_index),
+            'n' if self.pos is None else str(self.pos),
+            'n' if self.speed is None else '%f %f' % (self.speed, self.ramp_time),
+            'n' if self.zoom is None else str(self.zoom),
+            'n',
+            'n' if self.db is None else str(self.db),
+            'n']
+
 class AudioRouting:
     def __init__(self, matrix_state=None):
         if matrix_state is None:
@@ -263,5 +273,14 @@ class CueList(Publisher):
         self.changed('cues')
         self.write_if_path()
 
-    def fire_current_cue(self, name):
-        pass
+    def fire_current_cue(self, increment=False):
+        cue = self.current_cue()
+        name = cue.name
+        data = []
+        for bus in cue.buses:
+            data += bus.to_osc_array()
+        data += [' ' for i in range(5)]
+        data.append(cue.audio_routing.to_csv_string())
+        if increment:
+            self.increment_cue()
+        return (name, data)
