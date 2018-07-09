@@ -228,3 +228,6 @@ class SoundPatchWidget(QWidget, Publisher):
 
     def set_cue_routing(self, routing):
         self.cue_matrix.set_cue_routing(routing)
+
+    def as_audio_routing(self):
+        return self.cue_matrix.as_audio_routing()

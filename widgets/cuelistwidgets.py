@@ -76,12 +76,18 @@ class CueButtonsLayout(QVBoxLayout, Publisher):
         self.addWidget(blank_before)
         self.addWidget(blank_after)
         self.addSpacing(15)
-        self.addWidget(QPushButton('↑ Save as new cue before'))
+        self.insert_before = QPushButton('↑ Save as new cue before')
+        self.insert_before.clicked.connect(self.insert_before_clicked)
+        self.addWidget(self.insert_before)
         self.update = QPushButton('Update cue')
+        self.update.clicked.connect(self.update_clicked)
         self.update_fire = QPushButton('Update and fire cue')
+        self.update_fire.clicked.connect(self.update_fire_clicked)
         self.addWidget(self.update)
         self.addWidget(self.update_fire)
-        self.addWidget(QPushButton('↓ Save as new cue after'))
+        self.insert_after = QPushButton('↓ Save as new cue after')
+        self.insert_after.clicked.connect(self.insert_after_clicked)
+        self.addWidget(self.insert_after)
         self.addSpacing(15)
         delete = QPushButton('⌫ Delete cue')
         delete.clicked.connect(self.delete_clicked)
@@ -96,17 +102,30 @@ class CueButtonsLayout(QVBoxLayout, Publisher):
     def delete_clicked(self):
         self.changed('delete_current')
 
+    def update_clicked(self):
+        self.changed('update')
+
+    def update_fire_clicked(self):
+        self.changed('update_fire')
+
+    def insert_before_clicked(self):
+        self.changed('insert_before')
+
+    def insert_after_clicked(self):
+        self.changed('insert_after')
+
     def setEdited(self, edited):
-        p = self.update.palette()
-        if edited:
-            p.setColor(QPalette.Button, QColor(0, 200, 0))
-        else:
-            p.setColor(QPalette.Button, QColor('transparent'))
-        self.update.setAutoFillBackground(True)
-        self.update.setPalette(p)
+        for button in [self.update, self.insert_before, self.insert_after]:
+            p = button.palette()
+            if edited:
+                p.setColor(QPalette.Button, QColor(255, 180, 180))
+            else:
+                p.setColor(QPalette.Button, QColor('transparent'))
+            button.setAutoFillBackground(True)
+            button.setPalette(p)
         p = self.update_fire.palette()
         if edited:
-            p.setColor(QPalette.Button, QColor(255, 150, 150))
+            p.setColor(QPalette.Button, QColor(0, 200, 0))
         else:
             p.setColor(QPalette.Button, QColor('transparent'))
         self.update_fire.setAutoFillBackground(True)

@@ -5,7 +5,6 @@ Author: Eric Sluyter
 Last edited: July 2018
 """
 
-
 class CueController:
     def __init__(self, model, view):
         self.model = model
@@ -46,18 +45,22 @@ class CueController:
             model.add_empty_cue_after_current('BLANK')
         if what == 'delete_current':
             model.delete_current_cue()
+        if what == 'update':
+            model.replace_current_cue(view.mainwidget.as_cue())
+        if what == 'update_fire':
+            model.replace_current_cue(view.mainwidget.as_cue())
+        if what == 'insert_before':
+            name, ok = view.get_text('New cue name', 'New cue name:')
+            if ok:
+                model.add_cue_before_current(view.mainwidget.as_cue(name))
+        if what == 'insert_after':
+            name, ok = view.get_text('New cue name', 'New cue name:')
+            if ok:
+                model.add_cue_after_current(view.mainwidget.as_cue(name))
         if what == 'rwff_speed' and etc != model.rwff_speed:
             model.rwff_speed = etc
         if what == 'edited':
-            edited = False
-            for bus in view.mainwidget.buses:
-                if bus.edited():
-                    edited = True
-            if view.mainwidget.sound.edited():
-                edited = True
-            if view.mainwidget.notes.edited:
-                edited = True
-            view.mainwidget.buttons.setEdited(edited)
+            view.mainwidget.buttons.setEdited(view.mainwidget.edited())
 
     def view_media_info(self):
         self.view.mainwidget.set_media_info(self.model.media_info)

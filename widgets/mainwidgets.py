@@ -8,11 +8,13 @@ Author: Eric Sluyter
 Last edited: July 2018
 """
 
+from model.cuelist import Cue
 from widgets.buspanelwidgets import BusWidget, SoundPatchWidget
 from widgets.cuelistwidgets import (CueListWidget, CueButtonsLayout,
     CueMidpanelLayout, CueNotesWidget)
 from PyQt5.QtWidgets import (QWidget, QPushButton, QMainWindow, QToolTip, QAction,
-    QTextEdit, QLabel, QHBoxLayout, QVBoxLayout, QDesktopWidget, QSizePolicy)
+    QTextEdit, QLabel, QHBoxLayout, QVBoxLayout, QDesktopWidget, QSizePolicy,
+    QInputDialog, QMessageBox)
 from PyQt5.QtGui import QFont, QIcon
 from common.publisher import Publisher
 from widgets.fonts import UIFonts
@@ -61,6 +63,17 @@ class MainWidget(QWidget, Publisher):
         hbox.addLayout(vbox)
         self.setLayout(hbox)
 
+    def edited(self):
+        edited = False
+        for bus in self.buses:
+            if bus.edited():
+                edited = True
+        if self.sound.edited():
+            edited = True
+        if self.notes.edited:
+            edited = True
+        return edited
+
     def view_update(self, what, etc):
         if what == 'edited':
             self.changed('edited')
@@ -74,6 +87,13 @@ class MainWidget(QWidget, Publisher):
     def set_media_info(self, media_info):
         for bus in self.buses:
             bus.set_media_info(media_info)
+
+    def as_cue(self, name=None):
+        name = self.midpanel.cue_name.text() if name is None else name
+        buses = [bus.as_bus_cue() for bus in self.buses]
+        notes = self.notes.toPlainText()
+        sound = self.sound.as_audio_routing()
+        return Cue(name, buses, notes, sound)
 
 class MainWindow(QMainWindow, Publisher):
 
@@ -89,17 +109,44 @@ class MainWindow(QMainWindow, Publisher):
         self.mainwidget = MainWidget()
         self.setCentralWidget(self.mainwidget)
 
-        action = QAction(QIcon('icons/poo.png'), '&Test', self)
-        action.triggered.connect(self.close)
-        #action.setStatusTip('This just quits the application...')
-        action.setShortcut('Ctrl+T')
+        new = QAction(QIcon('icons/document-empty.png'), '&New Cue List', self)
+        new.triggered.connect(self.new)
+        new.setShortcut('Ctrl+N')
+
+        open = QAction(QIcon('icons/open-folder.png'), '&Open Cue List...', self)
+        open.triggered.connect(self.open)
+        open.setShortcut('Ctrl+O')
+
+        refresh = QAction(QIcon('icons/refresh.png'), '&Refresh Cue List', self)
+        refresh.triggered.connect(self.refresh)
+        refresh.setShortcut('Ctrl+R')
+
+        save = QAction(QIcon('icons/floppy-disk.png'), '&Save As...', self)
+        save.triggered.connect(self.save)
+        save.setShortcut('Ctrl+S')
+
+        close = QAction(QIcon('icons/door-exit.png'), '&Close', self)
+        close.triggered.connect(self.close)
+        close.setShortcut('Ctrl+W')
 
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
-        fileMenu.addAction(action)
+        fileMenu.addAction(new)
+        fileMenu.addAction(open)
+        fileMenu.addAction(refresh)
+        fileMenu.addSeparator()
+        fileMenu.addAction(save)
+        fileMenu.addSeparator()
+        fileMenu.addAction(close)
 
-        toolbar = self.addToolBar('Test')
-        toolbar.addAction(action)
+        toolbar = self.addToolBar('Util')
+        toolbar.addAction(new)
+        toolbar.addAction(open)
+        toolbar.addAction(refresh)
+        toolbar.addSeparator()
+        toolbar.addAction(save)
+        toolbar.addSeparator()
+        toolbar.addAction(close)
 
         self.resize(1100, 800)
         self.center()
@@ -113,11 +160,30 @@ class MainWindow(QMainWindow, Publisher):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
-#    def closeEvent(self, event):
-#        reply = QMessageBox.question(self, 'Message',
-#            'Are you sure you want to quit?', QMessageBox.Yes | QMessageBox.No,
-#            QMessageBox.No)
-#        if reply == QMessageBox.Yes:
-#            event.accept()
-#        else:
-#            event.ignore()
+    def get_text(self, title, label):
+        return QInputDialog.getText(self, title, label)
+
+    def new(self):
+        return None
+
+    def open(self):
+        return None
+
+    def refresh(self):
+        return None
+
+    def save(self):
+        return None
+
+    def closeEvent(self, event):
+        if self.mainwidget.edited():
+            reply = QMessageBox.question(self, 'Message',
+                'There are unsaved changes, are you sure you want to quit?',
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No)
+            if reply == QMessageBox.Yes:
+                event.accept()
+            else:
+                event.ignore()
+        else:
+            event.accept()
