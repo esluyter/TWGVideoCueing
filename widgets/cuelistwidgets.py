@@ -123,6 +123,9 @@ class CueButtonsLayout(QVBoxLayout, Publisher):
                 p.setColor(QPalette.Button, QColor('transparent'))
             button.setAutoFillBackground(True)
             button.setPalette(p)
+            # ugh hack
+            button.hide()
+            button.show()
         p = self.update_fire.palette()
         if edited:
             p.setColor(QPalette.Button, QColor(0, 200, 0))
@@ -130,6 +133,9 @@ class CueButtonsLayout(QVBoxLayout, Publisher):
             p.setColor(QPalette.Button, QColor('transparent'))
         self.update_fire.setAutoFillBackground(True)
         self.update_fire.setPalette(p)
+        # ugh hack
+        self.update_fire.hide()
+        self.update_fire.show()
 
 class CueMidpanelLayout(QVBoxLayout, Publisher):
     def __init__(self):
@@ -156,15 +162,19 @@ class CueMidpanelLayout(QVBoxLayout, Publisher):
         self.rw = QPushButton('◀◀')
         self.rw.setFont(UIFonts.transport_rwff_font)
         self.rw.setFixedHeight(70)
+        self.rw.clicked.connect(self.rw_clicked)
         self.pause = QPushButton('\u25ae\u25ae')
         self.pause.setFont(UIFonts.transport_pause_font)
         self.pause.setFixedHeight(70)
+        self.pause.clicked.connect(self.pause_clicked)
         self.play = QPushButton('▶')
         self.play.setFont(UIFonts.transport_play_font)
         self.play.setFixedHeight(70)
+        self.play.clicked.connect(self.play_clicked)
         self.ff = QPushButton('►►')
         self.ff.setFont(UIFonts.transport_rwff_font)
         self.ff.setFixedHeight(70)
+        self.ff.clicked.connect(self.ff_clicked)
 
         self.transport.addWidget(self.rw)
         self.transport.addWidget(self.pause)
@@ -197,6 +207,18 @@ class CueMidpanelLayout(QVBoxLayout, Publisher):
 
     def go_clicked(self):
         self.changed('go')
+
+    def ff_clicked(self):
+        self.changed('ff_all')
+
+    def rw_clicked(self):
+        self.changed('rw_all')
+
+    def play_clicked(self):
+        self.changed('play_all')
+
+    def pause_clicked(self):
+        self.changed('pause_all')
 
     def numStateChanged(self):
         self.rwff_slider.setValue(self.rwff_num.value)

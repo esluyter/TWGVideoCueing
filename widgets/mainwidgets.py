@@ -78,6 +78,20 @@ class MainWidget(QWidget, Publisher):
     def view_update(self, what, etc):
         if what == 'edited':
             self.changed('edited')
+        if what == 'capture_all':
+            self.changed('capture_all')
+        if what == 'play':
+            self.changed('play', etc)
+        if what == 'pause':
+            self.changed('pause', etc)
+        if what == 'rw':
+            self.changed('rw', etc)
+        if what == 'ff':
+            self.changed('ff', etc)
+        if what == 'set_bus_pos':
+            self.changed('set_bus_pos', etc)
+        if what == 'current_matrix':
+            self.changed('current_matrix', etc)
 
     def set_cue_name(self, name):
         self.midpanel.cue_name.setText(name)

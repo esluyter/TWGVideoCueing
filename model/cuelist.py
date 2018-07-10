@@ -28,14 +28,40 @@ class Media:
     def __repr__(self):
         return "Media('%s', %s)" % (self.name, self.duration)
 
-class BusState:
-    def __init__(self, media_index=0, pos=0.0, active=False):
+class BusState(Publisher):
+    def __init__(self, index, media_index=0, pos=0.0, speed=0.0, active=False):
+        super().__init__()
+
+        self.index = index
         self.media_index = media_index
         self.pos = pos
         self.active = active
+        self.speed = speed
+        self.role = 'model'
 
     def __repr__(self):
-        return "BusState(%s, %s, %s)" % (self.media_index, self.pos, self.active)
+        return "BusState(%s, %s, %s, %s, %s)" % (self.index, self.media_index, self.pos, self.speed, self.active)
+
+    def set_pos(self, pos):
+        if self.active:
+            self.pos = pos
+            self.changed('pos', self.index)
+
+    def set_from_cue(self, media_index, pos, speed):
+        if media_index is not None:
+            self.media_index = media_index
+        if media_index == 0:
+            self.pos = 0.0
+            self.speed = 0.0
+            self.active = False
+        elif self.media_index != 0:
+            if pos is not None:
+                self.pos = pos
+            if speed is not None:
+                self.speed = speed
+            self.active = True
+        self.changed('pos', self.index)
+        self.changed('active', self.index)
 
 class BusCue:
     def __init__(self, media_index=None, pos=None, speed=None, ramp_time=None,
@@ -127,7 +153,7 @@ class CueList(Publisher):
     def __init__(self, path=None, rwff_speed=8.0):
         super().__init__()
         self.role = 'model'
-        self.bus_states = [BusState() for i in range(5)]
+        self.bus_states = [BusState(i) for i in range(5)]
         self.current_routing = AudioRouting()
         self.rwff_speed = rwff_speed
         self.load_path(path)
@@ -205,18 +231,6 @@ class CueList(Publisher):
             for i, media in self.media_info.items():
                 media_file.write('%i, "%s" %f;\n' % (i, media.name, media.duration))
 
-    def set_bus_pos(self, index, pos):
-        self.bus_states[index].pos = pos
-        self.changed('bus' + index + 'pos')
-
-    def set_bus_media(self, index, media_index):
-        self.bus_states[index].media_index = media_index
-        self.changed('bus' + index + 'media')
-
-    def set_bus_active(self, index, active):
-        self.bus_states[index].active = active
-        self.changed('bus' + index + 'active')
-
     def goto_cue(self, index):
         self.cue_pointer = index % len(self.cues)
         self.changed('cue_pointer')
@@ -277,8 +291,9 @@ class CueList(Publisher):
         cue = self.current_cue()
         name = cue.name
         data = []
-        for bus in cue.buses:
+        for i, bus in enumerate(cue.buses):
             data += bus.to_osc_array()
+            self.bus_states[i].set_from_cue(bus.media_index, bus.pos, bus.speed)
         data += [' ' for i in range(5)]
         data.append(cue.audio_routing.to_csv_string())
         if increment:

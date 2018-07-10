@@ -17,7 +17,7 @@ from widgets.fonts import UIFonts
 from widgets.littlewidgets import QNumberBox
 from model.cuelist import AudioRouting
 from PyQt5.QtWidgets import (QWidget, QCheckBox, QComboBox, QSlider, QLabel,
-    QHBoxLayout, QVBoxLayout, QGridLayout, QSizePolicy)
+    QHBoxLayout, QVBoxLayout, QGridLayout, QSizePolicy, QPushButton)
 from PyQt5.QtGui import QColor, QPalette
 from PyQt5.QtCore import Qt
 
@@ -51,6 +51,8 @@ class BusCueComponent(QWidget, Publisher):
 class CurrentPosWidget(BusCueComponent):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.value = 0
+        self.locked = False
         self.initUI()
 
     def initUI(self):
@@ -69,12 +71,67 @@ class CurrentPosWidget(BusCueComponent):
         self.pos_slider = QSlider(Qt.Horizontal)
         self.pos_slider.setMaximum(100)
         self.pos_slider.setMinimum(0)
+        self.pos_slider.sliderMoved.connect(self.slider_moved)
+        self.pos_slider.sliderPressed.connect(self.slider_pressed)
+        self.pos_slider.sliderReleased.connect(self.slider_released)
+        self
         vbox.addWidget(self.pos_slider)
+
+        hbox = QHBoxLayout()
+        hbox.setSpacing(0)
+        subvbox = QVBoxLayout()
+        subvbox.setSpacing(0)
+        capturethisbutt = QPushButton('Capture this')
+        capturethisbutt.setFont(UIFonts.butt_font)
+        capturethisbutt.clicked.connect(self.capture)
+        captureallbutt = QPushButton('Capture all')
+        captureallbutt.setFont(UIFonts.butt_font)
+        captureallbutt.clicked.connect(self.capture_all)
+        subvbox.addWidget(capturethisbutt)
+        subvbox.addWidget(captureallbutt)
+        hbox.addLayout(subvbox)
+        self.capture_num = QNumberBox()
+        self.capture_num.setFixedWidth(50)
+        hbox.addWidget(self.capture_num)
+        vbox.addLayout(hbox)
+
+        hbox = QHBoxLayout()
+        hbox.addStretch(1)
+        setcueposbutt = QPushButton('Set cue position')
+        setcueposbutt.setFont(UIFonts.butt_font)
+        setcueposbutt.clicked.connect(self.set_cue_pos)
+        hbox.addWidget(setcueposbutt)
+        vbox.addLayout(hbox)
+
         self.setLayout(vbox)
 
     def setValue(self, value):
-        self.pos_slider.setValue(value)
+        self.value = value;
+        if not self.locked:
+            self.pos_slider.setValue(value)
         self.pos_label.setText('%s%%' % str(round(value, 2)))
+
+    def capture(self):
+        self.capture_num.setValue(self.value)
+        #ugh hack
+        self.capture_num.hide()
+        self.capture_num.show()
+
+    def capture_all(self):
+        self.changed('capture_all')
+
+    def set_cue_pos(self):
+        self.changed('set_cue_pos', self.value)
+
+    def slider_pressed(self):
+        self.locked = True
+        self.changed('set_bus_pos', self.pos_slider.value())
+
+    def slider_released(self):
+        self.locked = False
+
+    def slider_moved(self):
+        self.changed('set_bus_pos', self.pos_slider.value())
 
 class CueMediaWidget(BusCueComponent):
     def set_media_info(self, media_info):
@@ -194,6 +251,18 @@ class CuePositionWidget(BusCueComponent):
 
         self.cue_num = self.getValue()
         self.setEdited(False)
+
+    def setValueEdited(self, value):
+        if value is None:
+            self.setChecked(False)
+            self.pos_num.setValue(0)
+        else:
+            self.setChecked(True)
+            self.pos_num.setValue(value)
+        self.numStateChanged()
+        # ugh hack
+        self.hide()
+        self.show()
 
     def getValue(self):
         if self.check.isChecked():

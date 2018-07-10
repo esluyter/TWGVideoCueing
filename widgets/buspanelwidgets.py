@@ -30,6 +30,7 @@ class BusWidget(QWidget, Publisher):
 
         self.letter = letter
         self.initUI()
+        self.set_active(False)
 
     def initUI(self):
         vbox = QVBoxLayout()
@@ -80,50 +81,47 @@ class BusWidget(QWidget, Publisher):
         vbox.addSpacing(20)
         vbox.addWidget(QHLine())
 
-        subvbox = QVBoxLayout()
-        subvbox.setSpacing(0)
         self.current_pos = CurrentPosWidget()
+        sp = self.current_pos.sizePolicy()
+        sp.setRetainSizeWhenHidden(True)
+        self.current_pos.setSizePolicy(sp)
         self.current_pos.register(self)
-        subvbox.addWidget(self.current_pos)
-        subhbox = QHBoxLayout()
-        subhbox.setSpacing(0)
-        subsubvbox = QVBoxLayout()
-        subsubvbox.setSpacing(0)
-        capturethisbutt = QPushButton('Capture this')
-        capturethisbutt.setFont(UIFonts.butt_font)
-        captureallbutt = QPushButton('Capture all')
-        captureallbutt.setFont(UIFonts.butt_font)
-        subsubvbox.addWidget(capturethisbutt)
-        subsubvbox.addWidget(captureallbutt)
-        subhbox.addLayout(subsubvbox)
-        self.capture_num = QNumberBox()
-        self.capture_num.setFixedWidth(50)
-        subhbox.addWidget(self.capture_num)
-        subvbox.addLayout(subhbox)
-        subhbox = QHBoxLayout()
-        subhbox.addStretch(1)
-        setcueposbutt = QPushButton('Set cue position')
-        setcueposbutt.setFont(UIFonts.butt_font)
-        subhbox.addWidget(setcueposbutt)
-        subvbox.addLayout(subhbox)
-        vbox.addLayout(subvbox)
 
-        vbox.addWidget(QHLine())
+        vbox.addWidget(self.current_pos)
+
+        line = QHLine()
+        vbox.addWidget(line)
 
         hbox = QHBoxLayout()
         hbox.setSpacing(0)
         rw = QPushButton('◀◀')
+        rw.setFixedWidth(45)
+        sp = rw.sizePolicy()
+        sp.setRetainSizeWhenHidden(True)
+        rw.setSizePolicy(sp)
         rw.setFont(QFont('SansSerif', 8))
+        rw.clicked.connect(self.rw)
         pause = QPushButton('\u25ae\u25ae')
+        pause.setFixedWidth(45)
+        pause.setSizePolicy(sp)
         pause.setFont(QFont('SansSerif', 11))
+        pause.clicked.connect(self.pause)
         play = QPushButton('▶')
+        play.setFixedWidth(45)
+        play.setSizePolicy(sp)
+        play.clicked.connect(self.play)
         ff = QPushButton('►►')
+        ff.setFixedWidth(45)
+        ff.setSizePolicy(sp)
         ff.setFont(QFont('SansSerif', 8))
+        ff.clicked.connect(self.ff)
         hbox.addWidget(rw)
         hbox.addWidget(pause)
         hbox.addWidget(play)
         hbox.addWidget(ff)
         vbox.addLayout(hbox)
+
+        self.transport = [line, rw, pause, play, ff]
 
         vbox.addStretch(1)
         self.setLayout(vbox)
@@ -131,6 +129,12 @@ class BusWidget(QWidget, Publisher):
     def view_update(self, what, etc):
         if what == 'edited':
             self.changed('edited')
+        if what == 'capture_all':
+            self.changed('capture_all')
+        if what == 'set_cue_pos':
+            self.position.setValueEdited(etc)
+        if what == 'set_bus_pos':
+            self.changed('set_bus_pos', (ord(self.letter) - 65, etc))
 
     def set_media_info(self, media_info):
         self.media.set_media_info(media_info)
@@ -138,12 +142,34 @@ class BusWidget(QWidget, Publisher):
     def set_current_pos(self, pos):
         self.current_pos.setValue(pos)
 
+    def set_active(self, active):
+        if active:
+            self.current_pos.show()
+            for thing in self.transport:
+                thing.show()
+        else:
+            self.current_pos.hide()
+            for thing in self.transport:
+                thing.hide()
+
     def set_values(self, bus):
         self.media.setValue(bus.media_index)
         self.position.setValue(bus.pos)
         self.speed.setValue(None if bus.speed is None else (bus.speed, bus.ramp_time))
         self.zoom.setValue(bus.zoom)
         self.volume.setValue(bus.db)
+
+    def rw(self):
+        self.changed('rw', ord(self.letter) - 65)
+
+    def ff(self):
+        self.changed('ff', ord(self.letter) - 65)
+
+    def play(self):
+        self.changed('play', ord(self.letter) - 65)
+
+    def pause(self):
+        self.changed('pause', ord(self.letter) - 65)
 
     def edited(self):
         return (self.media.edited or self.position.edited or self.speed.edited or
@@ -208,14 +234,36 @@ class SoundPatchWidget(QWidget, Publisher):
             label.setFont(UIFonts.label_font)
             grid.addWidget(label, i + 2, 5)
 
-        for i, j in [(i, j) for i in range(6) for j in range(5)]:
-            box = QCheckBox()
-            grid.addWidget(box, i + 2, j)
+        self.matrix = []
+
+        for i in range(5):
+            self.matrix.append([])
+            for j in range(6):
+                checkbox = QCheckBox()
+                checkbox.clicked.connect(self.matrixStateChanged)
+                self.matrix[i].append(checkbox)
+                grid.addWidget(self.matrix[i][j], j + 2, i)
 
         vbox.addLayout(grid)
 
         vbox.addStretch(1)
         self.setLayout(vbox)
+
+    def set_checkbox(self, i, j, checked):
+        self.matrix[i][j].setChecked(checked)
+
+    def matrixStateChanged(self):
+        data = ['n'] * (7 * 5 + 5)
+        str = ''
+        for i, row in enumerate(self.matrix):
+            for j, checkbox in enumerate(row):
+                str += '%d %d ' % (i, j)
+                if checkbox.isChecked():
+                    str += '1 '
+                else:
+                    str += '0 '
+        data.append(str.strip())
+        self.changed('current_matrix', data)
 
     def view_update(self, what, etc):
         if what == 'edited':
