@@ -1,0 +1,13 @@
+1, "I Shall Never Return original" 4897.56;
+2, "020916_krakow_dorota_archive" 8496.487;
+3, "2003_11_kantor rehearsal DVD" 4493.28;
+4, "Sugar High 1" 1954.452;
+5, "I Shall Never Return 050217" 4897.56;
+6, "Sugar High 2 w/ overlay" 850.14;
+7, "Kantor smoking overlay" 609.358;
+8, "Sugar High 2 full" 13530.516;
+9, "Dead class insert" 80.76;
+10, "Lila K loop" 113.76;
+11, "Kantor Rehearsal 12" 4294.64;
+12, "" 0.0;
+13, "Accident 5/5" 48.247;
