@@ -5,6 +5,8 @@ Author: Eric Sluyter
 Last edited: July 2018
 """
 
+from controller.midi import MidiWorker
+from PyQt5.QtCore import QThread
 from os.path import basename
 from pythonosc import udp_client, osc_server, dispatcher
 import threading
@@ -25,6 +27,14 @@ class CueController:
         self.client.send_message('/dummy', 0)
         self.blank_all()
 
+        self.midi_worker = MidiWorker()
+        self.midi_thread = QThread()
+        self.midi_worker.noteOn.connect(self.noteOn)
+        self.midi_worker.moveToThread(self.midi_thread)
+        self.midi_worker.finished.connect(self.midi_thread.quit)
+        self.midi_thread.started.connect(self.midi_worker.listen)
+        self.midi_thread.start()
+
         self.model = model
         self.view = view
 
@@ -40,6 +50,24 @@ class CueController:
         self.view_rwff_speed()
         self.view_cues()
         self.view_current_cue()
+
+    def noteOn(self, num, vel):
+        {
+            36: lambda: self.play_bus(0),
+            37: lambda: self.pause_bus(0),
+            38: lambda: self.play_bus(1),
+            39: lambda: self.pause_bus(1),
+            40: lambda: self.rw_bus(0),
+            41: lambda: self.ff_bus(0),
+            42: lambda: self.rw_bus(1),
+            43: lambda: self.ff_bus(1),
+            46: self.pause_all,
+            47: lambda: self.view_update('move_up'),
+            48: self.rw_all,
+            49: self.ff_all,
+            50: self.play_all,
+            51: self.fire_cue
+        }.get(num, lambda: None)()
 
     def pos_update(self, addr, pos):
         m = re.split(r'/pos/(\w)', addr)
@@ -58,7 +86,7 @@ class CueController:
     def matrix_update(self, addr, i, j, state):
         self.view.mainwidget.sound.set_checkbox(i, j, state == 1)
 
-    def model_update(self, what, etc):
+    def model_update(self, what, etc=None):
         if what == 'cue_pointer':
             self.view_current_cue(True)
         if what == 'cues':
@@ -84,7 +112,7 @@ class CueController:
             active = self.model.bus_states[etc].active
             self.view.mainwidget.buses[etc].set_active(active)
 
-    def view_update(self, what, etc):
+    def view_update(self, what, etc=None):
         model = self.model
         view = self.view
         if what == 'cue_pointer' and etc != model.cue_pointer:
@@ -165,6 +193,7 @@ class CueController:
             self.fire_cue(True)
         if what == 'quit':
             self.server.shutdown()
+            self.midi_worker.stopListening()
 
     def play_bus(self, bus):
         bus_state = self.model.bus_states[bus]
