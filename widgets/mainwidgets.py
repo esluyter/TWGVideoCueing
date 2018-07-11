@@ -140,6 +140,30 @@ class MainWindow(QMainWindow, Publisher):
         save.triggered.connect(self.save)
         save.setShortcut('Ctrl+S')
 
+        save_before = QAction('&Save As New Cue Before', self)
+        save_before.triggered.connect(self.save_before)
+        save_before.setShortcut('Ctrl+Up')
+
+        save_after = QAction('&Save As New Cue After', self)
+        save_after.triggered.connect(self.save_after)
+        save_after.setShortcut('Ctrl+Down')
+
+        blank_before = QAction('&Insert Blank Cue Before', self)
+        blank_before.triggered.connect(self.blank_before)
+        blank_before.setShortcut('Shift+Ctrl+Up')
+
+        blank_after = QAction('&Insert Blank Cue After', self)
+        blank_after.triggered.connect(self.blank_after)
+        blank_after.setShortcut('Shift+Ctrl+Down')
+
+        move_up = QAction('&Move Up In Cue List', self)
+        move_up.triggered.connect(self.move_up)
+        move_up.setShortcut('Alt+Up')
+
+        move_down = QAction('&Move Down In Cue List', self)
+        move_down.triggered.connect(self.move_down)
+        move_down.setShortcut('Alt+Down')
+
         save_as = QAction(QIcon('icons/floppy-disks-pair.png'), '&Save As...', self)
         save_as.triggered.connect(self.save_as)
         save_as.setShortcut('Shift+Ctrl+S')
@@ -147,6 +171,18 @@ class MainWindow(QMainWindow, Publisher):
         close = QAction(QIcon('icons/door-exit.png'), '&Close', self)
         close.triggered.connect(self.close)
         close.setShortcut('Ctrl+W')
+
+        update_fire = QAction('&Update And Fire', self)
+        update_fire.triggered.connect(self.update_fire)
+        update_fire.setShortcut('Ctrl+G')
+
+        delete = QAction('&Delete Cue', self)
+        delete.triggered.connect(self.delete)
+        delete.setShortcut('Ctrl+Backspace')
+
+        go = QAction('&Go', self)
+        go.triggered.connect(self.go)
+        go.setShortcut('Ctrl+Shift+Space')
 
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
@@ -158,6 +194,19 @@ class MainWindow(QMainWindow, Publisher):
         fileMenu.addAction(save_as)
         fileMenu.addSeparator()
         fileMenu.addAction(close)
+
+        cueMenu = menubar.addMenu('&Cue')
+        cueMenu.addAction(move_up)
+        cueMenu.addAction(move_down)
+        cueMenu.addSeparator()
+        cueMenu.addAction(blank_before)
+        cueMenu.addAction(blank_after)
+        cueMenu.addAction(save_before)
+        cueMenu.addAction(save_after)
+        cueMenu.addAction(delete)
+        cueMenu.addSeparator()
+        cueMenu.addAction(update_fire)
+        cueMenu.addAction(go)
 
         toolbar = self.addToolBar('Util')
         toolbar.addAction(new)
@@ -197,6 +246,33 @@ class MainWindow(QMainWindow, Publisher):
 
     def save(self):
         self.changed('save')
+
+    def save_before(self):
+        self.changed('insert_before')
+
+    def save_after(self):
+        self.changed('insert_after')
+
+    def blank_before(self):
+        self.changed('blank_before')
+
+    def blank_after(self):
+        self.changed('blank_after')
+
+    def move_up(self):
+        self.changed('move_up')
+
+    def move_down(self):
+        self.changed('move_down')
+
+    def update_fire(self):
+        self.changed('update_fire')
+
+    def delete(self):
+        self.changed('delete_current')
+
+    def go(self):
+        self.changed('go')
 
     def save_as(self):
         filename = QFileDialog.getSaveFileName(self, '', expanduser('data'))[0]

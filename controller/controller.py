@@ -90,6 +90,12 @@ class CueController:
         if what == 'cue_pointer' and etc != model.cue_pointer:
             if view.confirm_cue_change():
                 model.goto_cue(etc)
+        if what == 'move_up':
+            if view.confirm_cue_change():
+                model.decrement_cue()
+        if what == 'move_down':
+            if view.confirm_cue_change():
+                model.increment_cue()
         if what == 'cue_name' and etc != model.current_cue().name:
             model.rename_current_cue(etc)
         if what == 'blank_before':
