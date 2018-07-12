@@ -109,6 +109,3 @@ venv.bak/
 
 # OSX
 .DS_Store
-
-# backups
-backups/*.csv
