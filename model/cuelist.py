@@ -217,10 +217,11 @@ class CueList(Publisher):
             with open(os.path.join(self.path, 'mediainfo.txt'), 'r') as file:
                 for line in file:
                     m = re.split(r'(\d+), "([^"]+)" ([\d\.]+);', line)
-                    index = int(m[1])
-                    name = m[2]
-                    duration = float(m[3])
-                    self.media_info[index] = Media(name, duration)
+                    if len(m) > 3:
+                        index = int(m[1])
+                        name = m[2]
+                        duration = float(m[3])
+                        self.media_info[index] = Media(name, duration)
         self.changed('media_info')
 
     def update_media_info(self, data):
