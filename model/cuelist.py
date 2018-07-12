@@ -102,10 +102,11 @@ class AudioRouting:
     def from_csv_string(cls, string):
         matrix_state = make_2d_list(5, 6, False)
         for cell in clump(string.split(' '), 3):
-            row = int(cell[0])
-            col = int(cell[1])
-            state = cell[2] == '1'
-            matrix_state[row][col] = state
+            if (cell[0] != ''):
+                row = int(cell[0])
+                col = int(cell[1])
+                state = cell[2] == '1'
+                matrix_state[row][col] = state
         return cls(matrix_state)
 
     def to_csv_string(self):
