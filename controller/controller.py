@@ -7,7 +7,7 @@ Last edited: July 2018
 
 from controller.midi import MidiWorker
 from PyQt5.QtCore import QThread
-from os.path import basename
+from os.path import basename, normpath
 from pythonosc import udp_client, osc_server, dispatcher
 import threading
 import re
@@ -101,7 +101,7 @@ class CueController:
             if etc is None:
                 self.view.setWindowTitle('New Cue List')
             else:
-                self.view.setWindowTitle(basename(etc))
+                self.view.setWindowTitle(basename(normpath(etc)))
                 self.view.setWindowModified(False)
         if what == 'unsaved_changes':
             self.view.setWindowModified(True)
