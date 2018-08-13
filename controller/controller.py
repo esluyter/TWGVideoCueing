@@ -14,6 +14,18 @@ import re
 
 class CueController:
     def __init__(self, model, view):
+        self.model = model
+        self.view = view
+
+        model.register(self)
+        for bus_state in model.bus_states:
+            bus_state.register(self)
+        view.register(self)
+        view.mainwidget.register(self)
+        view.mainwidget.list.register(self)
+        view.mainwidget.buttons.register(self)
+        view.mainwidget.midpanel.register(self)
+
         self.dispatcher = dispatcher.Dispatcher()
         self.dispatcher.map('/db/*', self.db_update)
         self.dispatcher.map('/pos/*', self.pos_update)
@@ -22,7 +34,8 @@ class CueController:
         self.server = osc_server.ThreadingOSCUDPServer(('0.0.0.0', 7400), self.dispatcher)
         self.server_thread = threading.Thread(target=self.server.serve_forever)
         self.server_thread.start()
-        self.client = udp_client.SimpleUDPClient('192.168.2.3', 7500)
+        #self.client = udp_client.SimpleUDPClient('192.168.2.3', 7500)
+        self.client = udp_client.SimpleUDPClient('localhost', 57121)
         # this seems necessary to prime the pump
         self.client.send_message('/dummy', 0)
         self.blank_all()
@@ -35,17 +48,6 @@ class CueController:
         self.midi_thread.started.connect(self.midi_worker.listen)
         self.midi_thread.start()
 
-        self.model = model
-        self.view = view
-
-        model.register(self)
-        for bus_state in model.bus_states:
-            bus_state.register(self)
-        view.register(self)
-        view.mainwidget.register(self)
-        view.mainwidget.list.register(self)
-        view.mainwidget.buttons.register(self)
-        view.mainwidget.midpanel.register(self)
         self.view_media_info()
         self.view_rwff_speed()
         self.view_cues()
@@ -108,6 +110,9 @@ class CueController:
         if what == 'pos':
             pos = self.model.bus_states[etc].pos
             self.view.mainwidget.buses[etc].set_current_pos(pos)
+        if what == 'media':
+            media_name = self.model.media_info[self.model.bus_states[etc].media_index].name
+            self.view.mainwidget.buses[etc].set_current_media(media_name)
         if what == 'active':
             active = self.model.bus_states[etc].active
             self.view.mainwidget.buses[etc].set_active(active)

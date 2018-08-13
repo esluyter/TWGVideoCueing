@@ -61,6 +61,7 @@ class BusState(Publisher):
                 self.speed = speed
             self.active = True
         self.changed('pos', self.index)
+        self.changed('media', self.index)
         self.changed('active', self.index)
 
 class BusCue:

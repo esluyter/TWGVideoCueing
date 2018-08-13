@@ -142,6 +142,9 @@ class BusWidget(QWidget, Publisher):
     def set_current_pos(self, pos):
         self.current_pos.setValue(pos)
 
+    def set_current_media(self, media_name):
+        self.current_pos.setMedia(media_name)
+
     def set_active(self, active):
         if active:
             self.current_pos.show()

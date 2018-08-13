@@ -59,6 +59,8 @@ class CurrentPosWidget(BusCueComponent):
         vbox = QVBoxLayout()
         vbox.setSpacing(0)
         vbox.setContentsMargins(0, 0, 0, 0)
+        self.media_name = QLabel('Media name')
+        vbox.addWidget(self.media_name)
         hbox = QHBoxLayout()
         hbox.setContentsMargins(0, 0, 0, 0)
         label = QLabel('Current position')
@@ -74,7 +76,6 @@ class CurrentPosWidget(BusCueComponent):
         self.pos_slider.sliderMoved.connect(self.slider_moved)
         self.pos_slider.sliderPressed.connect(self.slider_pressed)
         self.pos_slider.sliderReleased.connect(self.slider_released)
-        self
         vbox.addWidget(self.pos_slider)
 
         hbox = QHBoxLayout()
@@ -110,6 +111,9 @@ class CurrentPosWidget(BusCueComponent):
         if not self.locked:
             self.pos_slider.setValue(value)
         self.pos_label.setText('%s%%' % str(round(value, 2)))
+
+    def setMedia(self, media_name):
+        self.media_name.setText(media_name)
 
     def capture(self):
         self.capture_num.setValue(self.value)
