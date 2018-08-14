@@ -14,7 +14,8 @@ from widgets.cuelistwidgets import (CueListWidget, CueButtonsLayout,
     CueMidpanelLayout, CueNotesWidget)
 from PyQt5.QtWidgets import (QWidget, QPushButton, QMainWindow, QToolTip, QAction,
     QTextEdit, QLabel, QHBoxLayout, QVBoxLayout, QDesktopWidget, QSizePolicy,
-    QInputDialog, QMessageBox, QFileDialog)
+    QInputDialog, QMessageBox, QFileDialog, QDialog, QGridLayout, QLineEdit,
+    QTableWidget, QTableWidgetItem, QHeaderView, QDialogButtonBox)
 from PyQt5.QtGui import QFont, QIcon
 from common.publisher import Publisher
 from widgets.fonts import UIFonts
@@ -110,6 +111,84 @@ class MainWidget(QWidget, Publisher):
         sound = self.sound.as_audio_routing()
         return Cue(name, buses, notes, sound)
 
+
+
+class SettingsDialog(QDialog):
+    def __init__(self, parent, osc_list, media_list):
+        super().__init__(parent)
+        self.initUI(osc_list, media_list)
+
+    def initUI(self, osc_list, media_list):
+        self.resize(800, 500)
+        layout = QGridLayout(self)
+        self.server_port = QLineEdit()
+        self.server_port.setText(str(osc_list[0]))
+        self.client_ip = QLineEdit()
+        self.client_ip.setText(osc_list[1])
+        self.client_port = QLineEdit()
+        self.client_port.setText(str(osc_list[2]))
+        title = QLabel('OSC Settings')
+        title.setFont(UIFonts.title_font)
+        layout.addWidget(title, 0, 0, 1, 2)
+        layout.addWidget(QLabel('Local port:'), 0, 2)
+        layout.addWidget(self.server_port, 0, 3)
+        layout.addWidget(QLabel('Remote IP:'), 1, 0)
+        layout.addWidget(self.client_ip, 1, 1)
+        layout.addWidget(QLabel('Remote port:'), 1, 2)
+        layout.addWidget(self.client_port, 1, 3)
+
+        title = QLabel('Media List')
+        title.setFont(UIFonts.title_font)
+        layout.addWidget(title, 4, 0, 1, 4)
+        self.media_table = QTableWidget(len(media_list), 3)
+        self.media_table.setHorizontalHeaderLabels(['Media No.', 'Name', 'Duration (sec)'])
+        self.media_table.verticalHeader().setVisible(False)
+        self.media_table.setColumnWidth(0, 80)
+        self.media_table.setColumnWidth(1, 489)
+        self.media_table.setColumnWidth(2, 189)
+        row = 0
+        for i, media in media_list.items():
+            if (i != 0):
+                self.media_table.setItem(row, 0, QTableWidgetItem(str(i)))
+                self.media_table.setItem(row, 1, QTableWidgetItem(media.name))
+                self.media_table.setItem(row, 2, QTableWidgetItem(str(media.duration)))
+                row += 1
+        self.media_table.itemChanged.connect(self.check_last_row)
+        layout.addWidget(self.media_table, 5, 0, 1, 4)
+
+        buttons = QDialogButtonBox()
+        buttons.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
+        buttons.rejected.connect(self.reject)
+        buttons.accepted.connect(self.accept)
+        layout.addWidget(buttons, 6, 0, 1, 4)
+        self.setLayout(layout)
+
+    def check_last_row(self):
+        row = self.media_table.currentRow()
+        col = self.media_table.currentColumn()
+        row_count = self.media_table.rowCount()
+        if row == (row_count - 1) and str(self.media_table.item(row, col).text()) != '':
+            self.media_table.setRowCount(row_count + 1)
+
+    def get_values(self):
+        server_port = int(self.server_port.text())
+        client_ip = str(self.client_ip.text())
+        client_port = int(self.client_port.text())
+        media_list = []
+        for row in range(self.media_table.rowCount()):
+            index_item = self.media_table.item(row, 0)
+            name_item = self.media_table.item(row, 1)
+            dur_item = self.media_table.item(row, 2)
+            if index_item is not None and index_item.text() != '':
+                index = int(index_item.text())
+                if (index != 0):
+                    name = str(name_item.text())
+                    dur = float(dur_item.text())
+                    media_list.append([index, name, dur])
+        return [[server_port, client_ip, client_port], media_list]
+
+
+
 class MainWindow(QMainWindow, Publisher):
 
     def __init__(self):
@@ -184,6 +263,10 @@ class MainWindow(QMainWindow, Publisher):
         go.triggered.connect(self.go)
         go.setShortcut('Ctrl+Shift+Space')
 
+        settings = QAction(QIcon('icons/open-window-with-gear-sign.png'), '&Cue List Settings...', self)
+        settings.triggered.connect(self.settings)
+        settings.setShortcut('Ctrl+,')
+
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
         fileMenu.addAction(new)
@@ -192,6 +275,8 @@ class MainWindow(QMainWindow, Publisher):
         fileMenu.addSeparator()
         fileMenu.addAction(save)
         fileMenu.addAction(save_as)
+        fileMenu.addSeparator()
+        fileMenu.addAction(settings)
         fileMenu.addSeparator()
         fileMenu.addAction(close)
 
@@ -214,6 +299,8 @@ class MainWindow(QMainWindow, Publisher):
         #toolbar.addAction(refresh)
         toolbar.addSeparator()
         toolbar.addAction(save)
+        toolbar.addSeparator()
+        toolbar.addAction(settings)
         toolbar.addSeparator()
         toolbar.addAction(close)
 
@@ -273,6 +360,14 @@ class MainWindow(QMainWindow, Publisher):
 
     def go(self):
         self.changed('go')
+
+    def settings(self):
+        self.changed('settings')
+
+    def show_settings_dialog(self, osc_list, media_list):
+        dialog = SettingsDialog(self, osc_list, media_list)
+        if dialog.exec_():
+            self.changed('new_settings', dialog.get_values())
 
     def save_as(self):
         filename = QFileDialog.getSaveFileName(self, '', expanduser('data'))[0]

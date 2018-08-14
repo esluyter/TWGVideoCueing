@@ -7,7 +7,7 @@ Last edited: July 2018
 
 from controller.midi import MidiWorker
 from PyQt5.QtCore import QThread
-from os.path import basename, normpath
+from os.path import basename, normpath, expanduser
 from pythonosc import udp_client, osc_server, dispatcher
 import threading
 import re
@@ -26,19 +26,7 @@ class CueController:
         view.mainwidget.buttons.register(self)
         view.mainwidget.midpanel.register(self)
 
-        self.dispatcher = dispatcher.Dispatcher()
-        self.dispatcher.map('/db/*', self.db_update)
-        self.dispatcher.map('/pos/*', self.pos_update)
-        self.dispatcher.map('/matrix', self.matrix_update)
-        # must use 0.0.0.0 to receive OSC from anywhere
-        self.server = osc_server.ThreadingOSCUDPServer(('0.0.0.0', 7400), self.dispatcher)
-        self.server_thread = threading.Thread(target=self.server.serve_forever)
-        self.server_thread.start()
-        #self.client = udp_client.SimpleUDPClient('192.168.2.3', 7500)
-        self.client = udp_client.SimpleUDPClient('localhost', 57121)
-        # this seems necessary to prime the pump
-        self.client.send_message('/dummy', 0)
-        self.blank_all()
+        self.start_osc()
 
         self.midi_worker = MidiWorker()
         self.midi_thread = QThread()
@@ -52,6 +40,43 @@ class CueController:
         self.view_rwff_speed()
         self.view_cues()
         self.view_current_cue()
+
+    def start_osc(self, start_server=True):
+        with open(expanduser('data/settings.txt'), 'r') as file:
+            contents = file.readlines()
+            self.server_port = int(contents[0])
+            client_info = contents[1].split(',')
+            self.client_ip = client_info[0]
+            self.client_port = int(client_info[1])
+
+        self.dispatcher = dispatcher.Dispatcher()
+        self.dispatcher.map('/db/*', self.db_update)
+        self.dispatcher.map('/pos/*', self.pos_update)
+        self.dispatcher.map('/matrix', self.matrix_update)
+        if start_server:
+            # must use 0.0.0.0 to receive OSC from anywhere
+            self.server = osc_server.ThreadingOSCUDPServer(('0.0.0.0', self.server_port), self.dispatcher)
+            self.server_thread = threading.Thread(target=self.server.serve_forever)
+            self.server_thread.start()
+        #self.client = udp_client.SimpleUDPClient('192.168.2.3', 7500)
+        self.client = udp_client.SimpleUDPClient(self.client_ip, self.client_port)
+        # this seems necessary to prime the pump
+        try:
+            self.client.send_message('/dummy', 0)
+            self.blank_all()
+        except:
+            print('OSC error!')
+
+    def restart_osc(self, server_port, client_ip, client_port):
+        with open(expanduser('data/settings.txt'), 'w') as file:
+            file.write('%d\n' % server_port)
+            file.write('%s,%d\n' % (client_ip, client_port))
+        if server_port != self.server_port:
+            self.server.shutdown()
+            self.start_osc()
+        else:
+            self.start_osc(False)
+
 
     def noteOn(self, num, vel):
         {
@@ -196,6 +221,13 @@ class CueController:
             model.save_as(etc)
         if what == 'go':
             self.fire_cue(True)
+        if what == 'settings':
+            view.show_settings_dialog([self.server_port, self.client_ip, self.client_port], model.media_info)
+        if what == 'new_settings':
+            osc_settings, media_list = etc
+            server_port, client_ip, client_port = osc_settings
+            self.restart_osc(server_port, client_ip, client_port)
+            model.update_media_info(media_list)
         if what == 'quit':
             self.server.shutdown()
             self.midi_worker.stopListening()

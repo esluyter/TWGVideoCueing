@@ -139,9 +139,14 @@ class CurrentPosWidget(BusCueComponent):
 
 class CueMediaWidget(BusCueComponent):
     def set_media_info(self, media_info):
+        value = self.media_indexes[self.media_num.currentIndex()]
         self.media_items = [str(k) + ' - ' + v.name for k, v in media_info.items()]
         self.media_indexes = list(media_info.keys())
         self.refreshMedia()
+        try:
+            self.media_num.setCurrentIndex(self.media_indexes.index(value))
+        except:
+            pass
 
     def __init__(self, parent=None):
         super().__init__(parent)

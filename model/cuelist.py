@@ -226,8 +226,15 @@ class CueList(Publisher):
         self.changed('media_info')
 
     def update_media_info(self, data):
-        #TODO: update media info and write it to disk
-        pass
+        #data is a list of lists [index, name, dur]
+        self.media_info = {0: Media('BLANK', 0)}
+        for row in data:
+            index = int(row[0])
+            name = str(row[1])
+            duration = float(row[2])
+            self.media_info[index] = Media(name, duration)
+        self.write_media_info()
+        self.changed('media_info')
 
     def write_media_info(self):
         with open(os.path.join(self.path, 'mediainfo.txt'), 'w') as media_file:
