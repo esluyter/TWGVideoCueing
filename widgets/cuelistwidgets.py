@@ -12,7 +12,7 @@ Last edited: July 2018
 from widgets.fonts import UIFonts
 from widgets.littlewidgets import QNumberBox
 from PyQt5.QtWidgets import (QListView, QVBoxLayout, QHBoxLayout, QPushButton,
-    QLabel, QSlider, QTextEdit)
+    QLabel, QSlider, QTextEdit, QAbstractItemView)
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QColor, QPalette
 from PyQt5.QtCore import Qt
 from common.publisher import Publisher
@@ -33,6 +33,7 @@ class CueListWidget(QListView, Publisher):
         self.selectionModel().currentChanged.connect(self.update_cue_pointer)
         self.itemDelegate().closeEditor.connect(self.name_changed)
         self.lock = False
+        self.pressed = False
 
     def set_cues(self, cues):
         self.cues = cues
@@ -48,10 +49,21 @@ class CueListWidget(QListView, Publisher):
         self.setCurrentIndex(index)
         self.lock = False
 
+    def mouseMoveEvent(self, event):
+        self.pressed = True
+        QListView.mouseMoveEvent(self, event)
+
+    def mouseReleaseEvent(self, event):
+        self.pressed = False
+        QListView.mouseReleaseEvent(self, event)
+
     def update_cue_pointer(self, a, b):
         if self.lock:
             return
-        self.changed('cue_pointer', self.currentIndex().row())
+        if self.pressed:
+            self.changed('move_cue', self.currentIndex().row())
+        else:
+            self.changed('cue_pointer', self.currentIndex().row())
 
     def name_changed(self):
         index = self.currentIndex().row()

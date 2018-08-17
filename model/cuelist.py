@@ -237,9 +237,10 @@ class CueList(Publisher):
         self.changed('media_info')
 
     def write_media_info(self):
-        with open(os.path.join(self.path, 'mediainfo.txt'), 'w') as media_file:
-            for i, media in self.media_info.items():
-                media_file.write('%i, "%s" %f;\n' % (i, media.name, media.duration))
+        if self.path is not None:
+            with open(os.path.join(self.path, 'mediainfo.txt'), 'w') as media_file:
+                for i, media in self.media_info.items():
+                    media_file.write('%i, "%s" %f;\n' % (i, media.name, media.duration))
 
     def goto_cue(self, index):
         self.cue_pointer = index % len(self.cues)
@@ -286,6 +287,14 @@ class CueList(Publisher):
     def rename_current_cue(self, name):
         self.current_cue().name = name
         self.changed('cue_name')
+        self.write_if_path()
+
+    def move_current_cue(self, index):
+        cue = self.current_cue()
+        del self.cues[self.cue_pointer]
+        self.cue_pointer = index
+        self.cues.insert(index, cue)
+        self.changed('cues')
         self.write_if_path()
 
     def delete_current_cue(self):

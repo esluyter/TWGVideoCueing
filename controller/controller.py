@@ -27,6 +27,12 @@ class CueController:
         view.mainwidget.midpanel.register(self)
 
         self.start_osc()
+        # this seems necessary to prime the pump
+        try:
+            self.client.send_message('/dummy', 0)
+            self.blank_all()
+        except:
+            print('OSC error!')
 
         self.midi_worker = MidiWorker()
         self.midi_thread = QThread()
@@ -60,12 +66,6 @@ class CueController:
             self.server_thread.start()
         #self.client = udp_client.SimpleUDPClient('192.168.2.3', 7500)
         self.client = udp_client.SimpleUDPClient(self.client_ip, self.client_port)
-        # this seems necessary to prime the pump
-        try:
-            self.client.send_message('/dummy', 0)
-            self.blank_all()
-        except:
-            print('OSC error!')
 
     def restart_osc(self, server_port, client_ip, client_port):
         with open(expanduser('data/settings.txt'), 'w') as file:
@@ -148,6 +148,9 @@ class CueController:
         if what == 'cue_pointer' and etc != model.cue_pointer:
             if view.confirm_cue_change():
                 model.goto_cue(etc)
+        if what == 'move_cue' and etc != model.cue_pointer:
+            if view.confirm_cue_change():
+                model.move_current_cue(etc)
         if what == 'move_up':
             if view.confirm_cue_change():
                 model.decrement_cue()
@@ -222,7 +225,11 @@ class CueController:
         if what == 'go':
             self.fire_cue(True)
         if what == 'settings':
-            view.show_settings_dialog([self.server_port, self.client_ip, self.client_port], model.media_info)
+            if model.path is None:
+                show_name = 'New'
+            else:
+                show_name = basename(normpath(model.path))
+            view.show_settings_dialog([self.server_port, self.client_ip, self.client_port], model.media_info, show_name)
         if what == 'new_settings':
             osc_settings, media_list = etc
             server_port, client_ip, client_port = osc_settings

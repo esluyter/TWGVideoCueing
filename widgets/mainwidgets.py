@@ -114,11 +114,11 @@ class MainWidget(QWidget, Publisher):
 
 
 class SettingsDialog(QDialog):
-    def __init__(self, parent, osc_list, media_list):
+    def __init__(self, parent, osc_list, media_list, show_name):
         super().__init__(parent)
-        self.initUI(osc_list, media_list)
+        self.initUI(osc_list, media_list, show_name)
 
-    def initUI(self, osc_list, media_list):
+    def initUI(self, osc_list, media_list, show_name):
         self.resize(800, 500)
         layout = QGridLayout(self)
         self.server_port = QLineEdit()
@@ -137,7 +137,7 @@ class SettingsDialog(QDialog):
         layout.addWidget(QLabel('Remote port:'), 1, 2)
         layout.addWidget(self.client_port, 1, 3)
 
-        title = QLabel('Media List')
+        title = QLabel(show_name + ' Media List')
         title.setFont(UIFonts.title_font)
         layout.addWidget(title, 4, 0, 1, 4)
         self.media_table = QTableWidget(len(media_list), 3)
@@ -364,8 +364,8 @@ class MainWindow(QMainWindow, Publisher):
     def settings(self):
         self.changed('settings')
 
-    def show_settings_dialog(self, osc_list, media_list):
-        dialog = SettingsDialog(self, osc_list, media_list)
+    def show_settings_dialog(self, osc_list, media_list, show_name):
+        dialog = SettingsDialog(self, osc_list, media_list, show_name)
         if dialog.exec_():
             self.changed('new_settings', dialog.get_values())
 
