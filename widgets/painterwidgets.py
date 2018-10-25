@@ -23,17 +23,20 @@ class LevelMeter(QWidget):
         self.gap = 5
 
     def set_dbs(self, l, r):
-        self.left_db = l
-        self.right_db = r
-        self.update()
+        if self.left_db != l or self.right_db != r:
+            self.left_db = l
+            self.right_db = r
+            self.update()
 
     def set_left_db(self, db):
-        self.left_db = db
-        self.update()
+        if self.left_db != db:
+            self.left_db = db
+            self.update()
 
     def set_right_db(self, db):
-        self.right_db = db
-        self.update()
+        if self.right_db != db:
+            self.right_db = db
+            self.update()
 
     def set_gap(self, gap):
         self.gap = gap

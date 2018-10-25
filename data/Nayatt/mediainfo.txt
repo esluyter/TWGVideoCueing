@@ -1,0 +1,9 @@
+0, "BLANK" 0.000000;
+1, "Nayatt B&W reconstruction" 4313.000000;
+2, "Nayatt Color 1" 1996.000000;
+3, "Nayatt Color 2" 431.000000;
+4, "Nayatt B&W plain" 3561.000000;
+5, "French cocktail party" 7114.000000;
+6, "Ken 16mm original" 3419.000000;
+7, "Nayatt N&W plain" 1200.000000;
+8, "NAYATT with inserts" 1200.000000;
