@@ -1,0 +1,32 @@
+Cue,A media,A pos,A speed,A ramp,A zoom,A db,B media,B pos,B speed,B ramp,B zoom,B db,C media,C pos,C speed,C ramp,C zoom,C db,D media,D pos,D speed,D ramp,D zoom,D db,E media,E pos,E speed,E ramp,E zoom,E db,Notes,Matrix
+BLANK,7,72.0,1.0,0.0,100.0,-4.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,,0 0 1 1 0 0 2 0 0 3 0 0 4 0 0 0 1 0 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 1 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+SPEED - SLOW,n,n,0.4,0.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,,0 0 1 1 0 0 2 0 0 3 0 0 4 0 0 0 1 1 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 1 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+SPEED - ONE,n,n,1.0,0.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,,0 0 1 1 0 0 2 0 0 3 0 0 4 0 0 0 1 1 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 1 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+SPEED - x2,n,n,2.0,0.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,,0 0 1 1 0 0 2 0 0 3 0 0 4 0 0 0 1 1 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 1 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+KEN 16mm,6,0.0,1.0,0.0,100.0,0.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,"from beginning
+",0 0 1 1 0 0 2 0 0 3 0 0 4 0 0 0 1 0 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 1 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+back to 16MM,6,4.6,1.0,0.0,100.0,-1.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,"right after SPALD ""let's see what they have to say"" for Well my dears and here I am.",0 0 1 1 0 0 2 0 0 3 0 0 4 0 0 0 1 1 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 1 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+back to 16MM,6,7.2,1.0,0.0,100.0,0.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,"as soon as Spalding says ""Celia Copplestone."" for Peter ent and ""Hullo everybody""
+",0 0 1 1 0 0 2 0 0 3 0 0 4 0 0 0 1 1 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 1 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+back to 16mm,6,10.67,1.0,0.0,100.0,0.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,"directly after ""he arrives alone."" for Spalding walking down the stairs
+",0 0 1 1 0 0 2 0 0 3 0 0 4 0 0 0 1 1 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 1 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+SPALDING CP INSERT 2,8,8.7,1.0,0.0,100.0,0.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,"after 2nd  doorbell - after ""what about monkey nuts?""
+",0 0 1 1 0 0 2 0 0 3 0 0 4 0 0 0 1 1 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 1 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+SPALDING CP INSERT,8,20.8,1.0,0.0,100.0,0.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,"after ""there is no cinema in Kinkanja"" for Spald: Someone has invited Sir Henry Harcourt Reilly to the party. He arrives alone.
+",0 0 1 1 0 0 2 0 0 3 0 0 4 0 0 0 1 1 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 1 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+SPALDING CP INSERT 1,8,0.0,1.0,0.0,100.0,-2.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,"after Libby places Alex in ghost sheet
+",0 0 1 1 0 0 2 0 0 3 0 0 4 0 0 0 1 1 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 1 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+COLOR PT 3,2,40.0,1.0,0.0,100.0,-5.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,,0 0 1 1 0 0 2 0 0 3 0 0 4 0 0 0 1 0 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 1 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+COLOR PT 2,2,n,1.0,0.0,100.0,0.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,"Celia and HHR scene (just the end)
+",0 0 0 1 0 0 2 0 0 3 0 0 4 0 0 0 1 0 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 0 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+COLOR PT 4,7,0.0,1.0,0.0,100.0,0.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,,0 0 1 1 0 0 2 0 0 3 0 0 4 0 0 0 1 0 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 1 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+COLOR PT 5,3,0.0,1.0,0.0,100.0,-7.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,,0 0 1 1 0 0 2 0 0 3 0 0 4 0 0 0 1 0 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 1 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+BW PT 1,4,0.0,1.0,0.0,100.0,0.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,,0 0 1 1 0 0 2 0 0 3 0 0 4 0 0 0 1 0 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 0 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+BW PT 2,1,27.2,1.0,0.0,100.0,0.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,CELIA AND HHR scene ,0 0 1 1 0 0 2 0 0 3 0 0 4 0 0 0 1 0 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 1 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+BW PT 3,1,64.563,1.0,0.0,100.0,0.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,Chicken heart,0 0 1 1 0 0 2 0 0 3 0 0 4 0 0 0 1 0 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 1 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+BW PT 4,1,72.4,1.0,0.0,100.0,0.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,"SPALDING introduces record and the stage is set for cocktail party
+",0 0 1 1 0 0 2 0 0 3 0 0 4 0 0 0 1 0 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 1 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+BW PT 5,1,75.23,1.0,0.0,100.0,-4.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,"children come in
+",0 0 0 1 0 0 2 0 0 3 0 0 4 0 0 0 1 0 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 0 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
+BW PT 6,1,95.0,1.0,0.0,100.0,0.0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,"destroying records
+",0 0 1 1 0 0 2 0 0 3 0 0 4 0 0 0 1 0 1 1 0 2 1 0 3 1 0 4 1 0 0 2 0 1 2 0 2 2 0 3 2 0 4 2 0 0 3 1 1 3 0 2 3 0 3 3 0 4 3 0 0 4 0 1 4 0 2 4 0 3 4 0 4 4 0 0 5 0 1 5 0 2 5 0 3 5 0 4 5 0
