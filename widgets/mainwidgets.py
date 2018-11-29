@@ -79,6 +79,8 @@ class MainWidget(QWidget, Publisher):
     def view_update(self, what, etc):
         if what == 'edited':
             self.changed('edited')
+        if what == 'preset':
+            self.changed('preset', etc)
         if what == 'capture_all':
             self.changed('capture_all')
         if what == 'play':

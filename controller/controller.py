@@ -218,6 +218,8 @@ class CueController:
             self.bus_pos(bus, pos)
         if what == 'current_matrix':
             self.client.send_message('/fromsm', etc)
+        if what == 'preset':
+            self.client.send_message('/preset', etc)
         if what == 'open':
             model.load_path(etc)
         if what == 'new':

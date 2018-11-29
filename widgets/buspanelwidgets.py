@@ -208,7 +208,23 @@ class SoundPatchWidget(QWidget, Publisher):
         self.cue_matrix.register(self)
         vbox.addWidget(self.cue_matrix)
 
-        vbox.addSpacing(40)
+        #vbox.addSpacing(40)
+
+        # STUPID WAY OF DOING MATRIX PRESETS >> FIX ASAP
+        hbox = QHBoxLayout()
+        preset1 = QPushButton('1')
+        preset2 = QPushButton('2')
+        preset3 = QPushButton('3')
+        preset4 = QPushButton('4')
+        preset1.clicked.connect(self.preset1)
+        preset2.clicked.connect(self.preset2)
+        preset3.clicked.connect(self.preset3)
+        preset4.clicked.connect(self.preset4)
+        hbox.addWidget(preset1)
+        hbox.addWidget(preset2)
+        hbox.addWidget(preset3)
+        hbox.addWidget(preset4)
+        vbox.addLayout(hbox)
 
         title = QLabel('Current routing')
         title.setFont(UIFonts.title_font)
@@ -267,6 +283,15 @@ class SoundPatchWidget(QWidget, Publisher):
                     str += '0 '
         data.append(str.strip())
         self.changed('current_matrix', data)
+
+    def preset1(self):
+        self.changed('preset', 1)
+    def preset2(self):
+        self.changed('preset', 2)
+    def preset3(self):
+        self.changed('preset', 3)
+    def preset4(self):
+        self.changed('preset', 4)
 
     def view_update(self, what, etc):
         if what == 'edited':
