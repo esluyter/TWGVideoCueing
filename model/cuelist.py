@@ -44,8 +44,9 @@ class BusState(Publisher):
 
     def set_pos(self, pos):
         if self.active:
-            self.pos = pos
-            self.changed('pos', self.index)
+            if self.pos != pos:
+                self.pos = pos
+                self.changed('pos', self.index)
 
     def set_from_cue(self, media_index, pos, speed):
         if media_index is not None:

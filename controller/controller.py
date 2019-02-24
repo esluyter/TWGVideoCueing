@@ -12,6 +12,8 @@ from pythonosc import udp_client, osc_server, dispatcher
 import threading
 import re
 
+debug = True
+
 class CueController:
     def __init__(self, model, view):
         self.model = model
@@ -114,6 +116,8 @@ class CueController:
         self.view.mainwidget.sound.set_checkbox(i, j, state == 1)
 
     def model_update(self, what, etc=None):
+        if debug:
+            print("begin model_update", what, etc)
         if what == 'cue_pointer':
             self.view_current_cue(True)
         if what == 'cues':
@@ -141,8 +145,12 @@ class CueController:
         if what == 'active':
             active = self.model.bus_states[etc].active
             self.view.mainwidget.buses[etc].set_active(active)
+        if debug:
+            print("end model_update", what, etc)
 
     def view_update(self, what, etc=None):
+        if debug:
+            print("begin view_update", what, etc)
         model = self.model
         view = self.view
         if what == 'cue_pointer' and etc != model.cue_pointer:
@@ -210,6 +218,8 @@ class CueController:
             self.bus_pos(bus, pos)
         if what == 'current_matrix':
             self.client.send_message('/fromsm', etc)
+        if what == 'preset':
+            self.client.send_message('/preset', etc)
         if what == 'open':
             model.load_path(etc)
         if what == 'new':
@@ -238,6 +248,8 @@ class CueController:
         if what == 'quit':
             self.server.shutdown()
             self.midi_worker.stopListening()
+        if debug:
+            print("end view_update", what, etc)
 
     def play_bus(self, bus):
         bus_state = self.model.bus_states[bus]

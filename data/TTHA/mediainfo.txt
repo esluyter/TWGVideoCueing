@@ -7,3 +7,6 @@
 6, "Hot Pepper" 257.382000;
 7, "NVI1553 Rehearsal Tape" 415.715000;
 8, "Rehearsal Tape 413" 664.914000;
+9, "Kate ghost b&w" 10.000000;
+10, "Japanese tape for scott" 10.000000;
+11, "TEST KATE GHOST" 10.000000;
