@@ -1,7 +1,7 @@
 #!/usr/local/bin/python3
 import math
 
-media_length = 22 * 60 + 58
+media_length = 22 * 60 + 46
 
 while True:
     position = input('Position (%) or "Q" to quit: ')
