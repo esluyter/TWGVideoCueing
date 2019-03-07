@@ -36,9 +36,11 @@ class CueController:
         except:
             print('OSC error!')
 
-        self.midi_worker = MidiWorker()
+        self.midi_worker = MidiWorker('Cntrl_r Controls')
         self.midi_thread = QThread()
         self.midi_worker.noteOn.connect(self.noteOn)
+        self.midi_worker.noteOff.connect(self.noteOff)
+        self.midi_worker.cc.connect(self.cc)
         self.midi_worker.moveToThread(self.midi_thread)
         self.midi_worker.finished.connect(self.midi_thread.quit)
         self.midi_thread.started.connect(self.midi_worker.listen)
@@ -82,21 +84,44 @@ class CueController:
 
     def noteOn(self, num, vel):
         {
-            36: lambda: self.play_bus(0),
-            37: lambda: self.pause_bus(0),
-            38: lambda: self.play_bus(1),
-            39: lambda: self.pause_bus(1),
-            40: lambda: self.rw_bus(0),
-            41: lambda: self.ff_bus(0),
-            42: lambda: self.rw_bus(1),
-            43: lambda: self.ff_bus(1),
-            46: self.pause_all,
-            47: lambda: self.view_update('move_up'),
-            48: self.rw_all,
-            49: self.ff_all,
-            50: self.play_all,
-            51: self.fire_cue
-        }.get(num, lambda: None)()
+            0: self.rw_all,
+            4: self.ff_all,
+            8: self.play_all,
+            12: self.fire_cue,
+
+            1: lambda: None,
+            5: lambda: None,
+            9: self.pause_all,
+            13: lambda: self.view_update('move_up'),
+
+            2: lambda: self.rw_bus(0),
+            6: lambda: self.ff_bus(0),
+            10: lambda: self.rw_bus(1),
+            14: lambda: self.ff_bus(1),
+
+            3: lambda: self.play_bus(0),
+            7: lambda: self.pause_bus(0),
+            11: lambda: self.play_bus(1),
+            15: lambda: self.pause_bus(1)
+        }.get(num, lambda: self.client.send_message('/midi', ['/button' + str(num - 15), vel]))()
+
+    def noteOff(self, num):
+        pass
+        #print('Note off', num)
+
+    def cc(self, num, val):
+        if num >= 48:
+            #print('/encoder' + str(num - 47), val)
+            self.client.send_message('/midi', ['/encoder' + str(num - 47), val])
+            return
+        if num % 4 == 0:
+            #print('/fader' + str(int(num / 4)), val)
+            self.client.send_message('/midi', ['/fader' + str(int(num / 4)), val])
+            return
+        else:
+            #print('/knob' + str(num - int(num / 4)), val)
+            self.client.send_message('/midi', ['/knob' + str(num - int(num / 4)), val])
+            return
 
     def pos_update(self, addr, pos):
         m = re.split(r'/pos/(\w)', addr)
