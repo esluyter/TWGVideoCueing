@@ -17,3 +17,9 @@
 16, "Kate reh tape 112718" 1200.000000;
 17, "Kate reh tape 112918" 1200.000000;
 18, "Kate reh tape 113018" 1200.000000;
+19, "Kate reh tape 121418" 1200.000000;
+20, "B and white plus record edit" 1200.000000;
+22, "end of AmDam tape" 1200.000000;
+23, "scratch" 1200.000000;
+24, "OpeningV2" 1200.000000;
+25, "shaking end section" 1200.000000;
