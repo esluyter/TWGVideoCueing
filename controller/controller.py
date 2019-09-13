@@ -90,6 +90,8 @@ class CueController:
             41: lambda: self.ff_bus(0),
             42: lambda: self.rw_bus(1),
             43: lambda: self.ff_bus(1),
+            44: lambda: self.emergency(),
+            45: lambda: self.emergency(0),
             46: self.pause_all,
             47: lambda: self.view_update('move_up'),
             48: self.rw_all,
@@ -313,6 +315,10 @@ class CueController:
     def blank_all(self):
         data = (['0'] + (['n'] * 6)) * 5
         self.client.send_message('/fromsm', data)
+
+    def emergency(self, on=1):
+        print('emergency')
+        self.client.send_message('/emergency', on)
 
     def view_media_info(self):
         self.view.mainwidget.set_media_info(self.model.media_info)
