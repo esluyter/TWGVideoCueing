@@ -300,7 +300,7 @@ class CueController:
     def fire_cue(self, increment=True):
         name, data = self.model.fire_current_cue(increment)
         self.client.send_message('/fromsm', data)
-        self.client.send_message('/isadora', ['/cuename', name])
+        self.client.send_message('/cuename', name)
 
     def bus_speed(self, bus, speed):
         # there must be a better way.... :)
