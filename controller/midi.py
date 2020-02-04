@@ -12,7 +12,7 @@ class MidiWorker(QObject):
     noteOn = pyqtSignal(int, int)
     finished = pyqtSignal()
 
-    def __init__(self, portName = 'MPD218 Port A'):
+    def __init__(self, portName = 'MPD218'):
         super().__init__()
         self.midiin = rtmidi.RtMidiIn()
         self.portName = portName
@@ -23,7 +23,7 @@ class MidiWorker(QObject):
         ports = range(self.midiin.getPortCount())
         if ports:
             for i in ports:
-                if self.midiin.getPortName(i) == self.portName:
+                if self.midiin.getPortName(i).startswith(self.portName):
                     self.alive = True
                     print(i, self.midiin.getPortName(i), ' - OPENING')
                     self.midiin.openPort(i)
